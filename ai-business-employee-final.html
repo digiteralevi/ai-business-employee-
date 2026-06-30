@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Business Employee — Final</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f0f18;color:#f0f0f0;min-height:100vh}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:#13131f}
+.header{padding:1.1rem 1.5rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo i{color:#fff;font-size:16px}
+.header-title{font-size:15px;font-weight:600;color:#fff}
+.header-sub{font-size:11px;color:#666;margin-top:1px}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(29,158,117,.15);color:#5DCAA5;border:1px solid rgba(29,158,117,.25);margin-left:auto}
+
+/* SCREENS */
+.screen{display:none;flex:1;flex-direction:column}
+.screen.active{display:flex}
+
+/* SHARED FIELD STYLES */
+.field{margin-bottom:.875rem}
+.field label{display:block;font-size:12.5px;font-weight:500;color:#bbb;margin-bottom:4px}
+.field input,.field textarea,.field select{width:100%;padding:8px 10px;font-size:13.5px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;color:#f0f0f0;resize:none;font-family:inherit;transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#1D9E75}
+.field input::placeholder,.field textarea::placeholder{color:#3a3a4a}
+.field textarea{height:68px;line-height:1.5}
+.field select option{background:#1a1a2e}
+.field .hint{font-size:11px;color:#444;margin-top:3px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sec-label{font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .625rem;padding-bottom:5px;border-bottom:1px solid #1e1e2e}
+.btn-main{width:100%;padding:10px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;transition:background .15s}
+.btn-main:hover{background:#179464}
+.btn-sec{width:100%;padding:9px;background:#1a1a2e;color:#ccc;border:1px solid #2a2a3a;border-radius:8px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;transition:all .15s}
+.btn-sec:hover{border-color:#1D9E75;color:#5DCAA5}
+.cta-bar{padding:.875rem 1.5rem;border-top:1px solid #2a2a3a;display:flex;gap:8px}
+.icon-btn{width:30px;height:30px;border:1px solid #2a2a3a;border-radius:7px;background:#1a1a2e;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#888;transition:all .15s;flex-shrink:0}
+.icon-btn:hover{border-color:#1D9E75;color:#5DCAA5}
+.icon-btn.accent{background:#1D9E75;border-color:#1D9E75}
+.icon-btn.accent i{color:#fff}
+.icon-btn.red:hover{border-color:#FF6B6B;color:#FF6B6B}
+.icon-btn i{font-size:15px}
+
+/* ── HOME SCREEN ── */
+.home-body{flex:1;overflow-y:auto;padding:1.25rem 1.5rem}
+.home-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.home-top h2{font-size:14px;font-weight:600;color:#fff}
+.biz-list{display:flex;flex-direction:column;gap:8px}
+.biz-card{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.biz-card:hover{border-color:#1D9E75;background:rgba(29,158,117,.06)}
+.biz-card.active-biz{border-color:#1D9E75;background:rgba(29,158,117,.08)}
+.biz-icon{width:38px;height:38px;border-radius:10px;background:rgba(29,158,117,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.biz-icon i{color:#5DCAA5;font-size:18px}
+.biz-info{flex:1;min-width:0}
+.biz-name{font-size:13.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.biz-type{font-size:11px;color:#666;margin-top:1px}
+.biz-actions{display:flex;gap:5px}
+.empty-state{text-align:center;padding:3rem 1rem;color:#555}
+.empty-state i{font-size:40px;display:block;margin-bottom:10px;opacity:.2}
+.empty-state p{font-size:13px;line-height:1.6}
+.api-key-section{margin-top:1.25rem;padding:1rem;background:#1a1a2e;border:1px solid #2a2a3a;border-radius:12px}
+.api-key-section label{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+.api-key-row{display:flex;gap:6px}
+.api-key-row input{flex:1;padding:7px 10px;font-size:12px;border:1px solid #2a2a3a;border-radius:7px;background:#13131f;color:#f0f0f0;font-family:monospace;transition:border-color .15s}
+.api-key-row input:focus{outline:none;border-color:#1D9E75}
+.api-key-row input::placeholder{color:#3a3a4a}
+.save-key-btn{padding:7px 12px;background:#1D9E75;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.save-key-btn:hover{background:#179464}
+.key-saved-msg{font-size:11px;margin-top:5px}
+.key-saved-msg.ok{color:#5DCAA5}
+.key-saved-msg.err{color:#FF6B6B}
+.key-saved-msg.idle{color:#555}
+.start-chat-bar{padding:.875rem 1.5rem;border-top:1px solid #2a2a3a}
+
+/* ── ADD/EDIT BUSINESS SCREEN ── */
+.form-body{flex:1;overflow-y:auto;padding:1.25rem 1.5rem}
+.form-topbar{padding:.75rem 1.5rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:10px}
+.form-topbar h2{font-size:14px;font-weight:600;color:#fff}
+.tone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.tone-btn{padding:8px 6px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;cursor:pointer;text-align:center;font-size:11.5px;color:#777;transition:all .15s;font-family:inherit}
+.tone-btn.sel{border-color:#1D9E75;background:rgba(29,158,117,.1);color:#5DCAA5;font-weight:600}
+.tone-btn i{display:block;font-size:18px;margin-bottom:3px}
+.extras{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.extra-toggle{padding:9px 11px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:12.5px;color:#777;transition:all .15s;font-family:inherit}
+.extra-toggle.on{border-color:#1D9E75;background:rgba(29,158,117,.08);color:#5DCAA5}
+.extra-toggle i{font-size:15px}
+#custom-lang-field{display:none}
+
+/* ── LEAD SCREEN ── */
+.lead-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem;background:#0f0f18}
+.lead-box{background:#13131f;border:1px solid #2a2a3a;border-radius:16px;padding:1.75rem;width:100%}
+.lead-avatar{width:52px;height:52px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem}
+.lead-avatar i{color:#fff;font-size:24px}
+.lead-title{font-size:17px;font-weight:700;color:#fff;text-align:center;margin-bottom:.4rem}
+.lead-sub{font-size:13px;color:#777;text-align:center;margin-bottom:1.25rem;line-height:1.5}
+.lead-inp{width:100%;padding:9px 11px;font-size:14px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;color:#f0f0f0;font-family:inherit;margin-bottom:.75rem;transition:border-color .15s}
+.lead-inp:focus{outline:none;border-color:#1D9E75}
+.lead-inp::placeholder{color:#3a3a4a}
+.lead-skip{text-align:center;margin-top:.75rem}
+.lead-skip button{background:none;border:none;color:#444;font-size:12px;cursor:pointer;font-family:inherit}
+.lead-skip button:hover{color:#777}
+
+/* ── CHAT SCREEN ── */
+.chat-topbar{padding:.75rem 1.5rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:10px}
+.ai-av{width:34px;height:34px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-av i{color:#fff;font-size:15px}
+.ai-nm{font-size:13.5px;font-weight:600;color:#fff}
+.ai-st{font-size:11px;color:#5DCAA5;display:flex;align-items:center;gap:3px;margin-top:1px}
+.dot{width:5px;height:5px;border-radius:50%;background:#5DCAA5;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.cust-tag{font-size:10px;color:#444;margin-top:1px}
+.tr{margin-left:auto;display:flex;gap:5px}
+.messages{flex:1;overflow-y:auto;padding:1.1rem 1.5rem;display:flex;flex-direction:column;gap:10px;background:#0f0f18}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:2px}
+.msg{display:flex;gap:7px;max-width:88%;animation:fu .2s ease}
+@keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.bubble{padding:9px 12px;border-radius:13px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.msg.ai .bubble{background:#1e1e30;color:#e8e8f0;border:1px solid #2a2a3a;border-bottom-left-radius:3px}
+.msg.user .bubble{background:#1D9E75;color:#fff;border-bottom-right-radius:3px}
+.mav{width:26px;height:26px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.mav i{color:#fff;font-size:11px}
+.mav.u{background:#1e1e30;border:1px solid #2a2a3a}
+.mav.u i{color:#666}
+.mt{font-size:10px;color:#333;margin-top:3px}
+.msg.user .mt{text-align:right}
+.tw{display:flex;gap:7px}
+.tbub{padding:10px 14px;background:#1e1e30;border:1px solid #2a2a3a;border-radius:13px;border-bottom-left-radius:3px;display:flex;gap:4px;align-items:center}
+.tbub span{width:6px;height:6px;border-radius:50%;background:#444;animation:bop .9s infinite}
+.tbub span:nth-child(2){animation-delay:.15s}
+.tbub span:nth-child(3){animation-delay:.3s}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.chips{padding:.4rem 1.5rem;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;background:#0f0f18;border-top:1px solid #1a1a2e}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:4px 10px;border:1px solid #2a2a3a;border-radius:20px;font-size:11.5px;color:#777;white-space:nowrap;cursor:pointer;background:#1a1a2e;flex-shrink:0;font-family:inherit;transition:all .15s}
+.chip:hover{border-color:#1D9E75;color:#5DCAA5}
+.action-bar{padding:.4rem 1.5rem;border-top:1px solid #1a1a2e;display:flex;gap:6px;background:#13131f;flex-wrap:wrap}
+.act-btn{flex:1;min-width:110px;padding:7px 9px;border:1px solid #2a2a3a;border-radius:7px;background:#1a1a2e;color:#bbb;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;transition:all .15s;text-decoration:none}
+.act-btn:hover{border-color:#1D9E75;color:#5DCAA5}
+.act-btn.pay{border-color:rgba(245,166,35,.3);color:#F5A623;background:rgba(245,166,35,.05)}
+.act-btn.pay:hover{border-color:#F5A623}
+.act-btn i{font-size:13px}
+.inp-row{padding:.75rem 1rem;border-top:1px solid #2a2a3a;display:flex;gap:7px;align-items:flex-end;background:#13131f}
+.cinp{flex:1;padding:9px 12px;border:1px solid #2a2a3a;border-radius:18px;font-size:13px;resize:none;background:#1a1a2e;color:#f0f0f0;max-height:90px;line-height:1.4;font-family:inherit;transition:border-color .15s}
+.cinp:focus{outline:none;border-color:#1D9E75}
+.cinp::placeholder{color:#3a3a4a}
+.sbtn{width:36px;height:36px;border-radius:50%;background:#1D9E75;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.sbtn:hover{background:#179464}
+.sbtn i{color:#fff;font-size:16px}
+.sbtn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── LOGS SCREEN ── */
+.logs-topbar{padding:.75rem 1.5rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:10px}
+.logs-title{font-size:14px;font-weight:600;color:#fff}
+.s-count{font-size:11px;color:#555;margin-left:auto}
+.logs-body{flex:1;overflow-y:auto;padding:1rem 1.5rem;display:flex;flex-direction:column;gap:10px;background:#0f0f18}
+.s-card{border:1px solid #2a2a3a;border-radius:10px;overflow:hidden}
+.s-hdr{padding:9px 13px;background:#1a1a2e;display:flex;justify-content:space-between;align-items:center}
+.s-hdr strong{font-size:12.5px;color:#fff}
+.s-hdr span{font-size:10px;color:#555;display:block;margin-top:1px}
+.s-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(29,158,117,.12);color:#5DCAA5;border:1px solid rgba(29,158,117,.2)}
+.s-tags{padding:7px 13px;background:#13131f;border-bottom:1px solid #1e1e2e;display:flex;gap:5px;flex-wrap:wrap}
+.s-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:#1a1a2e;color:#5DCAA5;border:1px solid rgba(29,158,117,.2)}
+.s-msgs{padding:9px 13px;display:flex;flex-direction:column;gap:5px;background:#13131f}
+.lr{padding:6px 10px;border-radius:7px;font-size:12px;line-height:1.5}
+.lr.cust{background:rgba(29,158,117,.07);border:1px solid rgba(29,158,117,.12)}
+.lr.ailog{background:#1a1a2e;border:1px solid #2a2a3a}
+.lr-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.lr.cust .lr-label{color:#5DCAA5}
+.lr.ailog .lr-label{color:#555}
+.lr.cust .lr-text{color:#c8eedd}
+.lr.ailog .lr-text{color:#bbb}
+.lr-time{font-size:9px;color:#3a3a4a;margin-left:5px;font-weight:400}
+.empty-logs{text-align:center;padding:3rem 1.5rem;color:#444}
+.empty-logs i{font-size:34px;display:block;margin-bottom:8px;opacity:.2}
+.exp-bar{padding:.75rem 1.5rem;border-top:1px solid #2a2a3a;display:flex;gap:7px;background:#13131f}
+.exp-btn{flex:1;padding:9px;border:1px solid #2a2a3a;border-radius:7px;background:#1a1a2e;color:#bbb;font-size:12.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;transition:all .15s}
+.exp-btn:hover{border-color:#1D9E75;color:#5DCAA5}
+.exp-btn.primary{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.exp-btn.primary:hover{background:#179464}
+.exp-btn i{font-size:14px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;display:flex;align-items:center;justify-content:center;padding:1.25rem;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:#13131f;border:1px solid #2a2a3a;border-radius:14px;width:100%;max-width:370px;overflow:hidden;transform:translateY(14px);transition:transform .2s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.mhdr{padding:.875rem 1.1rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:9px}
+.mhdr i{font-size:18px;color:#5DCAA5}
+.mhdr h3{font-size:14px;font-weight:600;color:#fff}
+.mcls{margin-left:auto;width:26px;height:26px;border-radius:6px;background:#1a1a2e;border:1px solid #2a2a3a;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#777}
+.mcls i{font-size:15px}
+.mbody{padding:1.1rem;max-height:55vh;overflow-y:auto}
+.mfield{margin-bottom:.75rem}
+.mfield label{display:block;font-size:11.5px;font-weight:500;color:#999;margin-bottom:3px}
+.mfield input,.mfield select,.mfield textarea{width:100%;padding:8px 10px;font-size:13px;border:1px solid #2a2a3a;border-radius:7px;background:#1a1a2e;color:#f0f0f0;font-family:inherit;transition:border-color .15s}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{outline:none;border-color:#1D9E75}
+.mfield input::placeholder,.mfield textarea::placeholder{color:#3a3a4a}
+.mfield select option{background:#1a1a2e}
+.mfield textarea{height:56px;resize:none;line-height:1.4}
+.mfooter{padding:.875rem 1.1rem;border-top:1px solid #2a2a3a;display:flex;gap:7px}
+.mbtn{flex:1;padding:9px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.mbtn.cancel{background:#1a1a2e;color:#777;border:1px solid #2a2a3a}
+.mbtn.submit{background:#1D9E75;color:#fff}
+.mbtn.submit:hover{background:#179464}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo"><i class="ti ti-robot"></i></div>
+    <div>
+      <div class="header-title">AI Business Employee</div>
+      <div class="header-sub">Multi-Business — Free & Powered by OpenRouter</div>
+    </div>
+    <div class="badge">Final ✨</div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen active" id="s-home">
+    <div class="home-body">
+      <div class="api-key-section">
+        <label>OpenRouter API Key <span style="color:#444;font-weight:400;text-transform:none">(isang beses lang i-save)</span></label>
+        <div class="api-key-row">
+          <input type="text" id="api-key-input" placeholder="sk-or-v1-..." autocomplete="off" spellcheck="false">
+          <button class="save-key-btn" onclick="saveApiKey()">Save Key</button>
+        </div>
+        <div class="key-saved-msg idle" id="key-msg">Paste your key then click Save Key</div>
+      </div>
+
+      <div style="margin-top:1.25rem">
+        <div class="home-top">
+          <h2>My Businesses</h2>
+          <button class="icon-btn accent" onclick="showAddBiz()" title="Add business"><i class="ti ti-plus"></i></button>
+        </div>
+        <div class="biz-list" id="biz-list"></div>
+      </div>
+    </div>
+    <div class="start-chat-bar">
+      <button class="btn-main" id="start-chat-btn" onclick="goToChat()" disabled><i class="ti ti-message-circle"></i> Start Chat with Selected Business</button>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT BUSINESS -->
+  <div class="screen" id="s-form">
+    <div class="form-topbar">
+      <button class="icon-btn" onclick="show('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <h2 id="form-title">Add Business</h2>
+    </div>
+    <div class="form-body">
+      <div class="sec-label">Business Info</div>
+      <div class="row2">
+        <div class="field"><label>Business name</label><input id="f-name" placeholder="e.g. Levi Beauty Studio"></div>
+        <div class="field"><label>Business type</label><input id="f-type" placeholder="e.g. Beauty Salon"></div>
+      </div>
+      <div class="field">
+        <label>Services & prices</label>
+        <textarea id="f-services" placeholder="Facial Treatment - ₱800&#10;Hair Treatment - ₱1,500&#10;Nail Services - ₱500"></textarea>
+        <div class="hint">One per line.</div>
+      </div>
+      <div class="field">
+        <label>FAQs</label>
+        <textarea id="f-faqs" placeholder="Open: Mon-Sat 9AM-7PM&#10;Location: Quezon City&#10;Booking: Required"></textarea>
+        <div class="hint">One per line.</div>
+      </div>
+      <div class="field">
+        <label>Payment link <span style="color:#444;font-weight:400">(optional)</span></label>
+        <input id="f-paylink" type="url" placeholder="https://gcash.me/... or Maya, PayMongo">
+      </div>
+      <div class="sec-label">AI Employee</div>
+      <div class="row2">
+        <div class="field"><label>Employee name</label><input id="f-empname" placeholder="e.g. Alia, Grace"></div>
+        <div class="field">
+          <label>Language</label>
+          <select id="f-lang" onchange="toggleCustomLang()">
+            <option value="taglish">Taglish Modern 🇵🇭</option>
+            <option value="english">English 🇺🇸</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="custom-lang-field">
+        <label>Custom language instruction</label>
+        <input id="f-custom-lang" placeholder="e.g. Reply in Bisaya. Very casual and friendly.">
+      </div>
+      <div class="field">
+        <label>Reply tone</label>
+        <div class="tone-grid">
+          <button class="tone-btn sel" data-tone="Friendly & Warm"><i class="ti ti-mood-smile"></i>Friendly</button>
+          <button class="tone-btn" data-tone="Professional"><i class="ti ti-briefcase"></i>Professional</button>
+          <button class="tone-btn" data-tone="Casual & Chill"><i class="ti ti-music"></i>Casual</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Extra abilities</label>
+        <div class="extras">
+          <button class="extra-toggle on" data-feat="sales"><i class="ti ti-currency-peso"></i>Sales upsell</button>
+          <button class="extra-toggle on" data-feat="followup"><i class="ti ti-messages"></i>Follow-up q</button>
+          <button class="extra-toggle on" data-feat="emojis"><i class="ti ti-mood-heart"></i>Use emojis</button>
+          <button class="extra-toggle on" data-feat="booking"><i class="ti ti-calendar"></i>Booking form</button>
+        </div>
+      </div>
+      <div class="sec-label">Lead Capture</div>
+      <div class="field">
+        <label>Ask customer info before chat?</label>
+        <select id="f-leadmode">
+          <option value="on">Yes — ask name & number first</option>
+          <option value="optional">Optional — they can skip</option>
+          <option value="off">No — go straight to chat</option>
+        </select>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="btn-sec" onclick="show('s-home')" style="flex:.4"><i class="ti ti-x"></i> Cancel</button>
+      <button class="btn-main" onclick="saveBiz()"><i class="ti ti-check"></i> Save Business</button>
+    </div>
+  </div>
+
+  <!-- LEAD CAPTURE -->
+  <div class="screen" id="s-lead">
+    <div class="lead-wrap">
+      <div class="lead-box">
+        <div class="lead-avatar"><i class="ti ti-robot"></i></div>
+        <div class="lead-title" id="lead-title">Kamusta! 👋</div>
+        <div class="lead-sub" id="lead-sub">Bago tayo mag-usap, pwede ko bang malaman ang iyong pangalan at number?</div>
+        <input class="lead-inp" id="lead-name" placeholder="Pangalan mo">
+        <input class="lead-inp" id="lead-number" type="tel" placeholder="Contact number (09XXXXXXXXX)">
+        <button class="btn-main" onclick="submitLead()">Magsimula na! →</button>
+        <div class="lead-skip" id="lead-skip"><button onclick="skipLead()">Skip — go straight to chat</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="screen" id="s-chat">
+    <div class="chat-topbar">
+      <div class="ai-av"><i class="ti ti-robot"></i></div>
+      <div>
+        <div class="ai-nm" id="c-name">AI Employee</div>
+        <div class="ai-st"><span class="dot"></span> Online now</div>
+        <div class="cust-tag" id="cust-tag"></div>
+      </div>
+      <div class="tr">
+        <button class="icon-btn accent" onclick="showLogs()" title="Logs"><i class="ti ti-clipboard-list"></i></button>
+        <button class="icon-btn" onclick="newSession()" title="New session"><i class="ti ti-refresh"></i></button>
+        <button class="icon-btn" onclick="show('s-home')" title="Switch business"><i class="ti ti-building-store"></i></button>
+      </div>
+    </div>
+    <div id="model-tag" style="font-size:10px;color:#444;padding:2px 1.5rem 3px;font-style:italic;background:#0f0f18;min-height:16px"></div>
+    <div class="messages" id="msgs"></div>
+    <div class="chips" id="chips"></div>
+    <div class="action-bar" id="act-bar"></div>
+    <div class="inp-row">
+      <textarea class="cinp" id="cinp" rows="1" placeholder="Type a message..." onkeydown="onKey(event)" oninput="rsz(this)" disabled></textarea>
+      <button class="sbtn" id="sbtn" onclick="sendMsg()" disabled><i class="ti ti-send"></i></button>
+    </div>
+  </div>
+
+  <!-- LOGS -->
+  <div class="screen" id="s-logs">
+    <div class="logs-topbar">
+      <button class="icon-btn" onclick="show('s-chat')"><i class="ti ti-arrow-left"></i></button>
+      <div class="logs-title">Conversation Logs</div>
+      <div class="s-count" id="s-count"></div>
+    </div>
+    <div class="logs-body" id="logs-body"></div>
+    <div class="exp-bar">
+      <button class="exp-btn" onclick="exportTXT()"><i class="ti ti-file-text"></i> TXT</button>
+      <button class="exp-btn primary" onclick="exportCSV()"><i class="ti ti-table-export"></i> CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="book-modal">
+  <div class="modal">
+    <div class="mhdr"><i class="ti ti-calendar-plus"></i><h3>Book Appointment</h3><button class="mcls" onclick="closeMod('book-modal')"><i class="ti ti-x"></i></button></div>
+    <div class="mbody">
+      <div class="mfield"><label>Full name</label><input id="b-name" placeholder="Your name"></div>
+      <div class="mfield"><label>Contact number</label><input id="b-num" type="tel" placeholder="09XXXXXXXXX"></div>
+      <div class="mfield"><label>Service</label><select id="b-svc"><option value="">Select service...</option></select></div>
+      <div class="mfield"><label>Date</label><input id="b-date" type="date"></div>
+      <div class="mfield"><label>Time</label><input id="b-time" type="time"></div>
+      <div class="mfield"><label>Notes (optional)</label><textarea id="b-notes" placeholder="Special requests?"></textarea></div>
+    </div>
+    <div class="mfooter">
+      <button class="mbtn cancel" onclick="closeMod('book-modal')">Cancel</button>
+      <button class="mbtn submit" onclick="submitBooking()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+var BUSINESSES = JSON.parse(localStorage.getItem('aibe_businesses')||'[]');
+var SAVED_KEY = localStorage.getItem('aibe_key')||'';
+var ALL_SESSIONS = [];
+var CUR_SESSION = null;
+var CUR_BIZ = null;
+var SELECTED_IDX = -1;
+var HISTORY = [];
+var LEAD = {name:'',number:''};
+var BUSY = false;
+var EDIT_IDX = -1;
+var TONE = 'Friendly & Warm';
+var FEATS = {sales:true,followup:true,emojis:true,booking:true};
+
+// Load saved key
+if(SAVED_KEY){
+  document.getElementById('api-key-input').value=SAVED_KEY;
+  document.getElementById('key-msg').textContent='✅ Key saved ('+SAVED_KEY.length+' chars)';
+  document.getElementById('key-msg').className='key-saved-msg ok';
+}
+
+// ── TONE & EXTRAS ──
+document.querySelectorAll('.tone-btn').forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll('.tone-btn').forEach(function(x){x.classList.remove('sel');});
+    b.classList.add('sel'); TONE=b.dataset.tone;
+  };
+});
+document.querySelectorAll('.extra-toggle').forEach(function(b){
+  b.onclick=function(){var f=b.dataset.feat;FEATS[f]=!FEATS[f];b.classList.toggle('on',FEATS[f]);};
+});
+
+function toggleCustomLang(){
+  document.getElementById('custom-lang-field').style.display=
+    document.getElementById('f-lang').value==='custom'?'block':'none';
+}
+
+// ── API KEY ──
+function saveApiKey(){
+  var k=document.getElementById('api-key-input').value.replace(/[\s\u00a0\u200b\ufeff\r\n\t]/g,'');
+  var msg=document.getElementById('key-msg');
+  if(k.length<20){msg.textContent='❌ Key too short';msg.className='key-saved-msg err';return;}
+  SAVED_KEY=k;
+  localStorage.setItem('aibe_key',k);
+  msg.textContent='✅ Key saved ('+k.length+' chars) — ready to use!';
+  msg.className='key-saved-msg ok';
+}
+
+function getKey(){
+  var k=document.getElementById('api-key-input').value.replace(/[\s\u00a0\u200b\ufeff\r\n\t]/g,'');
+  return k||SAVED_KEY;
+}
+
+// ── BUSINESS LIST ──
+function renderBizList(){
+  var list=document.getElementById('biz-list');
+  list.innerHTML='';
+  if(!BUSINESSES.length){
+    list.innerHTML='<div class="empty-state"><i class="ti ti-building-store"></i><p>Wala pang business na naka-add.<br>Click ang + button para magdagdag.</p></div>';
+    document.getElementById('start-chat-btn').disabled=true;
+    return;
+  }
+  BUSINESSES.forEach(function(biz,i){
+    var card=document.createElement('div');
+    card.className='biz-card'+(SELECTED_IDX===i?' active-biz':'');
+    card.onclick=function(){selectBiz(i);};
+    card.innerHTML=
+      '<div class="biz-icon"><i class="ti ti-building-store"></i></div>'+
+      '<div class="biz-info">'+
+        '<div class="biz-name">'+esc(biz.name)+'</div>'+
+        '<div class="biz-type">'+esc(biz.type||'Business')+' · '+esc(biz.emp)+'</div>'+
+      '</div>'+
+      '<div class="biz-actions">'+
+        '<button class="icon-btn" onclick="editBiz('+i+',event)" title="Edit"><i class="ti ti-pencil"></i></button>'+
+        '<button class="icon-btn red" onclick="deleteBiz('+i+',event)" title="Delete"><i class="ti ti-trash"></i></button>'+
+      '</div>';
+    list.appendChild(card);
+  });
+  document.getElementById('start-chat-btn').disabled=SELECTED_IDX<0;
+}
+
+function selectBiz(i){
+  SELECTED_IDX=i;
+  CUR_BIZ=BUSINESSES[i];
+  renderBizList();
+}
+
+function showAddBiz(){
+  EDIT_IDX=-1;
+  document.getElementById('form-title').textContent='Add Business';
+  document.getElementById('f-name').value='';
+  document.getElementById('f-type').value='';
+  document.getElementById('f-services').value='';
+  document.getElementById('f-faqs').value='';
+  document.getElementById('f-paylink').value='';
+  document.getElementById('f-empname').value='';
+  document.getElementById('f-lang').value='taglish';
+  document.getElementById('f-custom-lang').value='';
+  document.getElementById('custom-lang-field').style.display='none';
+  document.getElementById('f-leadmode').value='on';
+  TONE='Friendly & Warm';
+  FEATS={sales:true,followup:true,emojis:true,booking:true};
+  document.querySelectorAll('.tone-btn').forEach(function(b){b.classList.toggle('sel',b.dataset.tone==='Friendly & Warm');});
+  document.querySelectorAll('.extra-toggle').forEach(function(b){FEATS[b.dataset.feat]=true;b.classList.add('on');});
+  show('s-form');
+}
+
+function editBiz(i,e){
+  e.stopPropagation();
+  EDIT_IDX=i;
+  var biz=BUSINESSES[i];
+  document.getElementById('form-title').textContent='Edit Business';
+  document.getElementById('f-name').value=biz.name||'';
+  document.getElementById('f-type').value=biz.type||'';
+  document.getElementById('f-services').value=biz.services||'';
+  document.getElementById('f-faqs').value=biz.faqs||'';
+  document.getElementById('f-paylink').value=biz.payLink||'';
+  document.getElementById('f-empname').value=biz.emp||'';
+  document.getElementById('f-lang').value=biz.lang||'taglish';
+  document.getElementById('f-custom-lang').value=biz.customLang||'';
+  document.getElementById('custom-lang-field').style.display=biz.lang==='custom'?'block':'none';
+  document.getElementById('f-leadmode').value=biz.leadMode||'on';
+  TONE=biz.tone||'Friendly & Warm';
+  FEATS=Object.assign({sales:true,followup:true,emojis:true,booking:true},biz.feats||{});
+  document.querySelectorAll('.tone-btn').forEach(function(b){b.classList.toggle('sel',b.dataset.tone===TONE);});
+  document.querySelectorAll('.extra-toggle').forEach(function(b){b.classList.toggle('on',!!FEATS[b.dataset.feat]);});
+  show('s-form');
+}
+
+function deleteBiz(i,e){
+  e.stopPropagation();
+  if(!confirm('Delete "'+BUSINESSES[i].name+'"?'))return;
+  BUSINESSES.splice(i,1);
+  saveBusinesses();
+  if(SELECTED_IDX===i) SELECTED_IDX=-1;
+  else if(SELECTED_IDX>i) SELECTED_IDX--;
+  renderBizList();
+}
+
+function saveBiz(){
+  var name=document.getElementById('f-name').value.trim();
+  var services=document.getElementById('f-services').value.trim();
+  if(!name){alert('Lagyan mo ng business name!');return;}
+  if(!services){alert('Lagyan mo ng kahit isang service!');return;}
+  var lang=document.getElementById('f-lang').value;
+  var customLang=document.getElementById('f-custom-lang').value.trim();
+  if(lang==='custom'&&!customLang){alert('Lagyan mo ng custom language instruction!');return;}
+  var biz={
+    name:name,type:document.getElementById('f-type').value.trim(),
+    services:services,faqs:document.getElementById('f-faqs').value.trim(),
+    payLink:document.getElementById('f-paylink').value.trim(),
+    emp:document.getElementById('f-empname').value.trim()||'Alia',
+    lang:lang,customLang:customLang,
+    tone:TONE,feats:Object.assign({},FEATS),
+    leadMode:document.getElementById('f-leadmode').value
+  };
+  if(EDIT_IDX>=0){BUSINESSES[EDIT_IDX]=biz;if(SELECTED_IDX===EDIT_IDX)CUR_BIZ=biz;}
+  else{BUSINESSES.push(biz);SELECTED_IDX=BUSINESSES.length-1;CUR_BIZ=biz;}
+  saveBusinesses();
+  renderBizList();
+  show('s-home');
+}
+
+function saveBusinesses(){localStorage.setItem('aibe_businesses',JSON.stringify(BUSINESSES));}
+
+// ── START CHAT ──
+function goToChat(){
+  if(SELECTED_IDX<0||!CUR_BIZ){alert('Pumili muna ng business!');return;}
+  var k=getKey();
+  if(k.length<20){alert('I-save mo muna ang OpenRouter API key sa taas!');return;}
+  if(CUR_BIZ.leadMode==='off'){LEAD={name:'Guest',number:''};initChat();}
+  else{showLeadScreen();show('s-lead');}
+}
+
+function showLeadScreen(){
+  var eng=CUR_BIZ.lang==='english';
+  document.getElementById('lead-title').textContent=eng?'Hello there! 👋':'Kamusta! 👋';
+  document.getElementById('lead-sub').textContent=eng
+    ?'Before we chat, may I get your name and contact number?'
+    :'Bago tayo mag-usap, pwede ko bang malaman ang iyong pangalan at number?';
+  document.getElementById('lead-skip').style.display=CUR_BIZ.leadMode==='optional'?'block':'none';
+  document.getElementById('lead-name').value='';
+  document.getElementById('lead-number').value='';
+}
+
+function submitLead(){
+  var n=document.getElementById('lead-name').value.trim();
+  if(!n){alert('Ilagay mo ang iyong pangalan!');return;}
+  LEAD={name:n,number:document.getElementById('lead-number').value.trim()};
+  initChat();
+}
+function skipLead(){LEAD={name:'Guest',number:''};initChat();}
+
+function initChat(){
+  HISTORY=[];BUSY=false;
+  document.getElementById('msgs').innerHTML='';
+  document.getElementById('c-name').textContent=CUR_BIZ.emp+' · '+CUR_BIZ.name;
+  document.getElementById('cust-tag').textContent=LEAD.name&&LEAD.name!=='Guest'?'👤 '+LEAD.name+(LEAD.number?' · '+LEAD.number:''):'';
+  document.getElementById('cinp').disabled=false;
+  document.getElementById('sbtn').disabled=false;
+  CUR_SESSION={
+    id:'S'+(ALL_SESSIONS.length+1),
+    business:CUR_BIZ.name,employee:CUR_BIZ.emp,
+    customer:LEAD.name,number:LEAD.number,
+    started:new Date().toLocaleString(),messages:[],bookings:[]
+  };
+  ALL_SESSIONS.push(CUR_SESSION);
+  buildChips();buildActionBar();
+  show('s-chat');
+  sendGreeting();
+}
+
+function newSession(){
+  if(!confirm('Start new customer session?'))return;
+  LEAD={name:'',number:''};
+  document.getElementById('cust-tag').textContent='';
+  if(CUR_BIZ.leadMode==='off'){LEAD={name:'Guest',number:''};initChat();}
+  else{showLeadScreen();show('s-lead');}
+}
+
+function buildChips(){
+  var qs=CUR_BIZ.lang==='english'
+    ?['How much?','Are you open?','Can I book?','What services?','Where are you?']
+    :['Magkano po?','Open na kayo?','Pwede mag-book?','Anong services?','Saan kayo?'];
+  var c=document.getElementById('chips');c.innerHTML='';
+  qs.forEach(function(q){
+    var el=document.createElement('button');el.className='chip';el.textContent=q;
+    el.onclick=function(){document.getElementById('cinp').value=q;sendMsg();};
+    c.appendChild(el);
+  });
+}
+
+function buildActionBar(){
+  var bar=document.getElementById('act-bar');bar.innerHTML='';
+  if(CUR_BIZ.feats&&CUR_BIZ.feats.booking){
+    var b=document.createElement('button');b.className='act-btn';
+    b.innerHTML='<i class="ti ti-calendar-plus"></i> Book Appointment';
+    b.onclick=openBooking;bar.appendChild(b);
+    populateBookingServices(CUR_BIZ.services);
+  }
+  if(CUR_BIZ.payLink){
+    var a=document.createElement('a');a.className='act-btn pay';
+    a.innerHTML='<i class="ti ti-credit-card"></i> Pay Now';
+    a.href=CUR_BIZ.payLink;a.target='_blank';bar.appendChild(a);
+  }
+  bar.style.display=bar.children.length?'flex':'none';
+}
+
+function populateBookingServices(services){
+  var sel=document.getElementById('b-svc');
+  sel.innerHTML='<option value="">Select service...</option>';
+  (services||'').split('\n').forEach(function(line){
+    line=line.trim();if(!line)return;
+    var opt=document.createElement('option');opt.value=line;opt.textContent=line;sel.appendChild(opt);
+  });
+}
+
+// ── SYSTEM PROMPT ──
+function getLangRule(){
+  if(CUR_BIZ.lang==='english') return 'Reply in English only. Natural and conversational.';
+  if(CUR_BIZ.lang==='custom') return CUR_BIZ.customLang;
+  return 'Reply in modern Taglish — natural mix ng Filipino at English tulad ng paraan ng pag-text ng mga young Filipinos. Conversational, relatable, hindi robotic.';
+}
+
+function sysPrompt(){
+  var biz=CUR_BIZ;
+  var feats=biz.feats||{};
+  var cust=LEAD.name&&LEAD.name!=='Guest'?'\nCustomer: '+LEAD.name+(LEAD.number?' ('+LEAD.number+')':''):'';
+  return 'You are '+biz.emp+', a trained sales assistant for "'+biz.name+'"'+(biz.type?' ('+biz.type+')':'')+'.\n\nServices:\n'+biz.services+'\n\nFAQ:\n'+(biz.faqs||'None.')+cust+'\n\nRules:\n- Tone: '+(biz.tone||'Friendly')+'\n- '+getLangRule()+(feats.sales?'\n- Recommend services naturally and persuasively':'')+(feats.followup?'\n- Always end with a warm follow-up question':'')+( feats.emojis?'\n- Use emojis naturally':'\n- No emojis')+'\n- Never say you are an AI\n- State prices clearly\n- Keep replies max 3-4 sentences'+(LEAD.name&&LEAD.name!=='Guest'?'\n- Call customer by name occasionally':'')+(biz.payLink?'\n- If ready to pay, tell them to click Pay Now button below.':'');
+}
+
+// ── AI CALLS ──
+function sendGreeting(){
+  callAI([{role:'user',content:'Greet the customer'+(LEAD.name&&LEAD.name!=='Guest'?' named '+LEAD.name:'')+' warmly. Say your name and the business. Ask how you can help. Max 2 sentences.'}],true);
+}
+
+function sendMsg(){
+  var inp=document.getElementById('cinp');
+  var text=inp.value.trim();
+  if(!text||BUSY)return;
+  inp.value='';inp.style.height='';
+  addMsg('user',text);
+  HISTORY.push({role:'user',content:text});
+  if(CUR_SESSION) CUR_SESSION.messages.push({role:LEAD.name||'Customer',time:nowStr(),text:text});
+  callAI(HISTORY.slice(-12),false);
+}
+
+async function callAI(messages,isGreet){
+  BUSY=true;document.getElementById('sbtn').disabled=true;
+  var t=addTyping();var k=getKey();
+  try{
+    var res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k,'HTTP-Referer':'https://aibizemployee.netlify.app','X-Title':'AIBizEmployee'},
+      body:JSON.stringify({model:'openrouter/auto',messages:[{role:'system',content:sysPrompt()}].concat(messages),max_tokens:300,temperature:0.85})
+    });
+    var json=await res.json();t.remove();
+    if(json.error){addMsg('ai','⚠️ '+json.error.message);}
+    else{
+      var reply=(json.choices[0].message.content||'').trim();
+      var usedModel=json.model||'';if(usedModel)document.getElementById('model-tag').textContent='⚡ Model: '+usedModel;
+      addMsg('ai',reply);
+      HISTORY.push({role:'assistant',content:reply});
+      if(CUR_SESSION) CUR_SESSION.messages.push({role:CUR_BIZ.emp,time:nowStr(),text:reply});
+    }
+  }catch(e){t.remove();addMsg('ai','⚠️ Connection error: '+e.message);}
+  BUSY=false;document.getElementById('sbtn').disabled=false;
+}
+
+function addMsg(role,text){
+  var box=document.getElementById('msgs');
+  var wrap=document.createElement('div');wrap.className='msg '+role;
+  var av=document.createElement('div');av.className='mav'+(role==='user'?' u':'');
+  av.innerHTML=role==='ai'?'<i class="ti ti-robot"></i>':'<i class="ti ti-user"></i>';
+  var inner=document.createElement('div');
+  var bub=document.createElement('div');bub.className='bubble';bub.textContent=text;
+  var ts=document.createElement('div');ts.className='mt';ts.textContent=nowStr();
+  inner.appendChild(bub);inner.appendChild(ts);
+  wrap.appendChild(av);wrap.appendChild(inner);
+  box.appendChild(wrap);box.scrollTop=box.scrollHeight;
+}
+
+function addTyping(){
+  var box=document.getElementById('msgs');
+  var w=document.createElement('div');w.className='tw';
+  var av=document.createElement('div');av.className='mav';av.innerHTML='<i class="ti ti-robot"></i>';
+  var b=document.createElement('div');b.className='tbub';b.innerHTML='<span></span><span></span><span></span>';
+  w.appendChild(av);w.appendChild(b);box.appendChild(w);box.scrollTop=box.scrollHeight;return w;
+}
+
+// ── BOOKING ──
+function openBooking(){
+  if(LEAD.name&&LEAD.name!=='Guest') document.getElementById('b-name').value=LEAD.name;
+  if(LEAD.number) document.getElementById('b-num').value=LEAD.number;
+  document.getElementById('b-date').min=new Date().toISOString().split('T')[0];
+  document.getElementById('book-modal').classList.add('show');
+}
+
+function submitBooking(){
+  var name=document.getElementById('b-name').value.trim();
+  var svc=document.getElementById('b-svc').value;
+  var date=document.getElementById('b-date').value;
+  var time=document.getElementById('b-time').value;
+  var num=document.getElementById('b-num').value.trim();
+  var notes=document.getElementById('b-notes').value.trim();
+  if(!name||!svc||!date||!time){alert('Please fill in name, service, date, and time.');return;}
+  var bk={name:name,number:num,service:svc,date:date,time:time,notes:notes,submitted:nowStr()};
+  if(CUR_SESSION) CUR_SESSION.bookings.push(bk);
+  closeMod('book-modal');
+  addMsg('ai','✅ Booking confirmed!\n\n📋 '+name+'\n💆 '+svc+'\n📅 '+date+' at '+time+(notes?'\n📝 '+notes:'')+'\n\n'+(CUR_BIZ.lang==='english'?"We'll send a confirmation soon. Thank you!":'Magpapadala kami ng confirmation. Salamat!'));
+  if(CUR_SESSION) CUR_SESSION.messages.push({role:'BOOKING',time:nowStr(),text:'[BOOKED] '+svc+' — '+date+' '+time+' — '+name+(num?' ('+num+')':'')});
+}
+
+function closeMod(id){document.getElementById(id).classList.remove('show');}
+
+// ── LOGS ──
+function showLogs(){renderLogs();show('s-logs');}
+
+function renderLogs(){
+  var body=document.getElementById('logs-body');body.innerHTML='';
+  var sessions=ALL_SESSIONS.filter(function(s){return s.messages.length>0;});
+  document.getElementById('s-count').textContent=sessions.length+' session'+(sessions.length!==1?'s':'');
+  if(!sessions.length){body.innerHTML='<div class="empty-logs"><i class="ti ti-messages"></i><p>Wala pang conversations</p></div>';return;}
+  sessions.slice().reverse().forEach(function(s){
+    var card=document.createElement('div');card.className='s-card';
+    var hdr=document.createElement('div');hdr.className='s-hdr';
+    hdr.innerHTML='<div><strong>'+s.id+' — '+esc(s.business)+'</strong><span>'+s.started+'</span></div><span class="s-badge">'+s.messages.length+' msgs</span>';
+    var tags=document.createElement('div');tags.className='s-tags';
+    if(s.customer&&s.customer!=='Guest') tags.innerHTML+='<span class="s-tag">👤 '+esc(s.customer)+(s.number?' · '+esc(s.number):'')+'</span>';
+    if(s.bookings&&s.bookings.length) tags.innerHTML+='<span class="s-tag">📅 '+s.bookings.length+' booking'+(s.bookings.length>1?'s':'')+'</span>';
+    var msgsDiv=document.createElement('div');msgsDiv.className='s-msgs';
+    s.messages.forEach(function(m){
+      var isCust=m.role!==s.employee&&m.role!=='BOOKING';
+      var row=document.createElement('div');row.className='lr '+(isCust?'cust':'ailog');
+      row.innerHTML='<div class="lr-label">'+esc(m.role)+'<span class="lr-time">'+m.time+'</span></div><div class="lr-text">'+esc(m.text)+'</div>';
+      msgsDiv.appendChild(row);
+    });
+    card.appendChild(hdr);
+    if(tags.children.length) card.appendChild(tags);
+    card.appendChild(msgsDiv);
+    body.appendChild(card);
+  });
+}
+
+function exportCSV(){
+  var sessions=ALL_SESSIONS.filter(function(s){return s.messages.length>0;});
+  if(!sessions.length){alert('Wala pang conversations.');return;}
+  var rows=[['Session','Business','Customer','Number','Started','Role','Time','Message','Bookings']];
+  sessions.forEach(function(s){
+    var bkStr=s.bookings&&s.bookings.length?s.bookings.map(function(b){return b.service+' '+b.date+' '+b.time;}).join('; '):'';
+    s.messages.forEach(function(m,i){
+      rows.push([s.id,s.business,s.customer||'',s.number||'',s.started,m.role,m.time,'"'+m.text.replace(/"/g,'""')+'"',i===0?'"'+bkStr+'"':'']);
+    });
+  });
+  dl('conversations_'+Date.now()+'.csv','data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(function(r){return r.join(',');}).join('\n')));
+}
+
+function exportTXT(){
+  var sessions=ALL_SESSIONS.filter(function(s){return s.messages.length>0;});
+  if(!sessions.length){alert('Wala pang conversations.');return;}
+  var txt='AI BUSINESS EMPLOYEE v4 — LOGS\nExported: '+new Date().toLocaleString()+'\n'+'='.repeat(50)+'\n\n';
+  sessions.forEach(function(s){
+    txt+='SESSION: '+s.id+' | '+s.business+' | '+s.started+'\n';
+    if(s.customer&&s.customer!=='Guest') txt+='Customer: '+s.customer+(s.number?' | '+s.number:'')+'\n';
+    txt+='-'.repeat(40)+'\n';
+    s.messages.forEach(function(m){txt+='['+m.time+'] '+m.role+': '+m.text+'\n';});
+    if(s.bookings&&s.bookings.length){
+      txt+='\nBOOKINGS:\n';
+      s.bookings.forEach(function(b){txt+='  • '+b.service+' | '+b.date+' '+b.time+' | '+b.name+(b.number?' | '+b.number:'')+(b.notes?' | '+b.notes:'')+'\n';});
+    }
+    txt+='\n';
+  });
+  dl('conversations_'+Date.now()+'.txt','data:text/plain;charset=utf-8,'+encodeURIComponent(txt));
+}
+
+// ── UTILS ──
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
+function dl(name,url){var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function nowStr(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function esc(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function rsz(el){el.style.height='';el.style.height=Math.min(el.scrollHeight,90)+'px';}
+
+// Init
+renderBizList();
+</script>
+</body>
+</html>
