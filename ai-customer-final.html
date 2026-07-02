@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Chat with Us</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f0f18;color:#f0f0f0;min-height:100vh;display:flex;flex-direction:column}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:#13131f;width:100%}
+
+/* ERROR */
+.error-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center;display:none}
+.error-box{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:16px;padding:2rem}
+.error-box i{font-size:40px;color:#FF6B6B;display:block;margin-bottom:1rem}
+.error-box h2{font-size:16px;color:#fff;margin-bottom:.5rem}
+.error-box p{font-size:13px;color:#666;line-height:1.6}
+
+/* LEAD */
+.lead-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:#0f0f18;display:none}
+.lead-box{background:#13131f;border:1px solid #2a2a3a;border-radius:16px;padding:1.75rem;width:100%}
+.lead-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0d6e52);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.lead-avatar i{color:#fff;font-size:28px}
+.lead-biz{font-size:11px;font-weight:600;color:#5DCAA5;text-align:center;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.375rem}
+.lead-title{font-size:20px;font-weight:700;color:#fff;text-align:center;margin-bottom:.5rem}
+.lead-sub{font-size:13px;color:#777;text-align:center;margin-bottom:1.5rem;line-height:1.6}
+.lead-inp{width:100%;padding:10px 12px;font-size:14px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;color:#f0f0f0;font-family:inherit;margin-bottom:.75rem;transition:border-color .15s}
+.lead-inp:focus{outline:none;border-color:#1D9E75}
+.lead-inp::placeholder{color:#3a3a4a}
+.lead-btn{width:100%;padding:12px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.lead-btn:hover{background:#179464}
+.lead-skip{text-align:center;margin-top:.875rem}
+.lead-skip button{background:none;border:none;color:#444;font-size:12px;cursor:pointer;font-family:inherit}
+
+/* CHAT */
+.chat-wrap{flex:1;display:none;flex-direction:column}
+.topbar{padding:.875rem 1.25rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:10px;background:#13131f}
+.ai-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0d6e52);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-av i{color:#fff;font-size:17px}
+.ai-nm{font-size:14px;font-weight:600;color:#fff}
+.ai-st{font-size:11px;color:#5DCAA5;display:flex;align-items:center;gap:4px;margin-top:1px}
+.dot{width:6px;height:6px;border-radius:50%;background:#5DCAA5;animation:pulse 2s infinite;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.cust-nm{font-size:10px;color:#444;margin-top:1px}
+.topbar-right{margin-left:auto}
+.msng-btn{padding:6px 10px;background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.3);border-radius:20px;color:#5DCAA5;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;text-decoration:none}
+.msng-btn i{font-size:13px}
+
+.messages{flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:10px;background:#0f0f18}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:2px}
+.msg{display:flex;gap:8px;max-width:90%;animation:fu .2s ease}
+@keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.bubble{padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.msg.ai .bubble{background:#1e1e30;color:#e8e8f0;border:1px solid #2a2a3a;border-bottom-left-radius:3px}
+.msg.user .bubble{background:#1D9E75;color:#fff;border-bottom-right-radius:3px}
+.msg-img{max-width:200px;border-radius:10px;margin-top:4px;cursor:pointer}
+.mav{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0d6e52);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.mav i{color:#fff;font-size:12px}
+.mav.u{background:#1e1e30;border:1px solid #2a2a3a}
+.mav.u i{color:#666}
+.mt{font-size:10px;color:#333;margin-top:3px}
+.msg.user .mt{text-align:right}
+.tw{display:flex;gap:8px}
+.tbub{padding:12px 14px;background:#1e1e30;border:1px solid #2a2a3a;border-radius:14px;border-bottom-left-radius:3px;display:flex;gap:5px;align-items:center}
+.tbub span{width:7px;height:7px;border-radius:50%;background:#444;animation:bop .9s infinite}
+.tbub span:nth-child(2){animation-delay:.15s}
+.tbub span:nth-child(3){animation-delay:.3s}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+.chips{padding:.5rem 1.25rem;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;background:#0f0f18;border-top:1px solid #1a1a2e}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:5px 11px;border:1px solid #2a2a3a;border-radius:20px;font-size:12px;color:#777;white-space:nowrap;cursor:pointer;background:#1a1a2e;flex-shrink:0;font-family:inherit;transition:all .15s}
+.chip:hover{border-color:#1D9E75;color:#5DCAA5}
+
+/* PAYMENT BUTTONS */
+.pay-bar{padding:.625rem 1.25rem;border-top:1px solid #1a1a2e;display:flex;flex-direction:column;gap:6px;background:#13131f}
+.pay-label{font-size:10px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.pay-btns{display:flex;gap:6px;flex-wrap:wrap}
+.pay-btn{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;text-decoration:none;border:none}
+.pay-btn.funnel{background:rgba(94,92,230,.15);border:1px solid rgba(94,92,230,.3);color:#9d9bf5}
+.pay-btn.funnel:hover{background:rgba(94,92,230,.25)}
+.pay-btn.bizem{background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.3);color:#5DCAA5}
+.pay-btn.bizem:hover{background:rgba(29,158,117,.2)}
+.pay-btn.vip{background:linear-gradient(135deg,#F5A623,#e09000);color:#000;border:none}
+.pay-btn.vip:hover{opacity:.9}
+.pay-btn i{font-size:13px}
+
+.inp-row{padding:.75rem 1rem;border-top:1px solid #2a2a3a;display:flex;gap:8px;align-items:flex-end;background:#13131f}
+.cinp{flex:1;padding:10px 13px;border:1px solid #2a2a3a;border-radius:20px;font-size:13.5px;resize:none;background:#1a1a2e;color:#f0f0f0;max-height:100px;line-height:1.4;font-family:inherit;transition:border-color .15s}
+.cinp:focus{outline:none;border-color:#1D9E75}
+.cinp::placeholder{color:#3a3a4a}
+.inp-actions{display:flex;gap:6px;align-items:flex-end}
+.img-btn{width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3a;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#666;transition:all .15s}
+.img-btn:hover{border-color:#1D9E75;color:#5DCAA5}
+.img-btn i{font-size:17px}
+.sbtn{width:36px;height:36px;border-radius:50%;background:#1D9E75;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sbtn:hover{background:#179464}
+.sbtn i{color:#fff;font-size:17px}
+.sbtn:disabled{opacity:.3;cursor:not-allowed}
+
+/* PAYMENT POPUP MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.pay-modal{background:#13131f;border:1px solid #2a2a3a;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:1.5rem;transform:translateY(100%);transition:transform .3s ease}
+.modal-overlay.show .pay-modal{transform:translateY(0)}
+.pay-modal-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:.375rem}
+.pay-modal-sub{font-size:13px;color:#666;margin-bottom:1.25rem}
+.pay-method{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:12px;padding:1rem;margin-bottom:.75rem}
+.pay-method-title{font-size:12px;font-weight:600;color:#5DCAA5;margin-bottom:.5rem;display:flex;align-items:center;gap:6px}
+.pay-method-title i{font-size:15px}
+.pay-number{font-size:18px;font-weight:700;color:#fff;letter-spacing:.05em}
+.pay-name{font-size:11px;color:#555;margin-top:2px}
+.copy-num-btn{margin-top:.5rem;padding:6px 12px;background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.3);border-radius:6px;color:#5DCAA5;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+.copy-num-btn:hover{background:rgba(29,158,117,.2)}
+.send-receipt-btn{width:100%;padding:11px;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem;text-decoration:none}
+.send-receipt-btn:hover{background:#179464}
+.send-receipt-btn i{font-size:16px}
+.modal-close{width:100%;padding:10px;background:transparent;border:1px solid #2a2a3a;border-radius:10px;color:#666;font-size:13px;cursor:pointer;font-family:inherit;margin-top:.5rem}
+
+/* ANALYTICS BAR */
+.analytics-bar{padding:.5rem 1.25rem;background:#0f0f18;border-top:1px solid #1a1a2e;display:flex;gap:12px}
+.stat{text-align:center}
+.stat-n{font-size:14px;font-weight:700;color:#5DCAA5}
+.stat-l{font-size:10px;color:#444}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="error-screen" id="error-screen">
+    <div class="error-box">
+      <i class="ti ti-alert-circle"></i>
+      <h2>Invalid Link</h2>
+      <p>Ang link na ito ay hindi valid.<br>Makipag-ugnayan sa amin para sa tamang link.</p>
+    </div>
+  </div>
+
+  <div class="lead-wrap" id="lead-wrap">
+    <div class="lead-box">
+      <div class="lead-avatar"><i class="ti ti-robot"></i></div>
+      <div class="lead-biz" id="lead-biz">Digitera Levi</div>
+      <div class="lead-title" id="lead-title">Kamusta! 👋</div>
+      <div class="lead-sub" id="lead-sub">Bago tayo mag-usap, pwede ko bang malaman ang iyong pangalan at contact details?</div>
+      <input class="lead-inp" id="lead-name" placeholder="Pangalan mo">
+      <input class="lead-inp" id="lead-number" type="tel" placeholder="Contact number (09XXXXXXXXX)">
+      <input class="lead-inp" id="lead-email" type="email" placeholder="Email (optional)">
+      <button class="lead-btn" id="lead-btn" onclick="submitLead()">Magsimula na! →</button>
+      <div class="lead-skip" id="lead-skip" style="display:none">
+        <button onclick="skipLead()">Skip — go straight to chat</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-wrap" id="chat-wrap">
+    <div class="topbar">
+      <div class="ai-av"><i class="ti ti-robot"></i></div>
+      <div style="flex:1;min-width:0">
+        <div class="ai-nm" id="ai-nm">AI Assistant</div>
+        <div class="ai-st"><span class="dot"></span> Online now</div>
+        <div class="cust-nm" id="cust-nm"></div>
+      </div>
+      <a class="msng-btn" id="msng-btn" href="https://m.me/118441451362301?ref=2560834" target="_blank">
+        <i class="ti ti-brand-messenger"></i> Message Us
+      </a>
+    </div>
+    <div class="messages" id="msgs"></div>
+    <div class="chips" id="chips"></div>
+    <div class="pay-bar">
+      <div class="pay-label">Kumuha na ngayon 🔥</div>
+      <div class="pay-btns">
+        <button class="pay-btn funnel" onclick="openPayModal('bundle')"><i class="ti ti-package"></i> FunnelCraft + AI Biz Bundle — ₱1,997</button>
+        <a class="pay-btn vip" href="https://digiteralevi.systeme.io/06031589" target="_blank"><i class="ti ti-crown"></i> VIP ROI Framework — ₱997</a>
+      </div>
+    </div>
+    <div class="inp-row">
+      <textarea class="cinp" id="cinp" rows="1" placeholder="I-type ang iyong tanong..." onkeydown="onKey(event)" oninput="rsz(this)"></textarea>
+      <div class="inp-actions">
+        <button class="img-btn" onclick="document.getElementById('img-input').click()" title="Send image"><i class="ti ti-photo"></i></button>
+        <button class="sbtn" id="sbtn" onclick="sendMsg()"><i class="ti ti-send"></i></button>
+      </div>
+      <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImg(this)">
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="pay-modal">
+    <div class="pay-modal-title" id="pay-modal-title">FunnelCraft + AI Biz Bundle — ₱1,997</div>
+    <div class="pay-modal-sub">Bayaran via GCash o Maya, tapos i-send ang receipt sa aming Messenger — ibibigay namin ang files mo agad! 🔥</div>
+    <div class="pay-method">
+      <div class="pay-method-title"><i class="ti ti-brand-android"></i> GCash</div>
+      <div class="pay-number">09231893139</div>
+      <div class="pay-name">Levi Ugaban Mariano</div>
+      <button class="copy-num-btn" onclick="copyNum('09231893139')"><i class="ti ti-copy"></i> Copy number</button>
+    </div>
+    <div class="pay-method">
+      <div class="pay-method-title"><i class="ti ti-credit-card"></i> Maya</div>
+      <div class="pay-number">09461825985</div>
+      <div class="pay-name">Levi Ugaban Mariano</div>
+      <button class="copy-num-btn" onclick="copyNum('09461825985')"><i class="ti ti-copy"></i> Copy number</button>
+    </div>
+    <a class="send-receipt-btn" href="https://m.me/118441451362301?ref=2560834" target="_blank">
+      <i class="ti ti-brand-messenger"></i> I-send ang Receipt sa Messenger
+    </a>
+    <button class="modal-close" onclick="closePayModal()">Bumalik sa chat</button>
+  </div>
+</div>
+
+<script>
+var BIZ=null,HISTORY=[],LEAD={name:'',number:'',email:''},BUSY=false;
+var TOTAL_CHATS=parseInt(localStorage.getItem('aibe_total_chats')||'0');
+
+window.onload=function(){
+  var params=new URLSearchParams(window.location.search);
+  var encoded=params.get('c');
+  if(!encoded){showError();return;}
+  try{
+    BIZ=JSON.parse(decodeURIComponent(encoded));
+    if(!BIZ.name||!BIZ.key){showError();return;}
+    // Override with fixed values
+    BIZ.gcash='09231893139';
+    BIZ.maya='09461825985';
+    BIZ.messenger='https://m.me/118441451362301?ref=2560834';
+    BIZ.vipLink='https://digiteralevi.systeme.io/06031589';
+    BIZ.sheetId='1gvAwnY473WFcC70GTg65sCEzQu4qO0CMX9-ZkVzIj3c';
+    // Load persistent history
+    var savedHistory=localStorage.getItem('aibe_history_'+BIZ.name);
+    if(savedHistory){try{HISTORY=JSON.parse(savedHistory);}catch(e){HISTORY=[];}}
+    initApp();
+  }catch(e){showError();}
+};
+
+function showError(){
+  document.getElementById('error-screen').style.display='flex';
+}
+
+function initApp(){
+  document.title='Chat with '+BIZ.name;
+  if(BIZ.leadMode==='off'){LEAD={name:'Guest',number:'',email:''};startChat();}
+  else{showLeadScreen();}
+}
+
+function showLeadScreen(){
+  var isEng=BIZ.lang==='english';
+  document.getElementById('lead-biz').textContent=BIZ.name;
+  document.getElementById('lead-title').textContent=isEng?'Hello there! 👋':'Kamusta! 👋';
+  document.getElementById('lead-sub').textContent=isEng
+    ?'Before we chat, may I get your name and contact details?'
+    :'Bago tayo mag-usap, pwede ko bang malaman ang iyong pangalan at contact details?';
+  document.getElementById('lead-btn').textContent=isEng?'Start chatting! →':'Magsimula na! →';
+  document.getElementById('lead-skip').style.display=BIZ.leadMode==='optional'?'block':'none';
+  document.getElementById('lead-wrap').style.display='flex';
+}
+
+function submitLead(){
+  var n=document.getElementById('lead-name').value.trim();
+  if(!n){alert('Ilagay mo ang iyong pangalan!');return;}
+  LEAD={
+    name:n,
+    number:document.getElementById('lead-number').value.trim(),
+    email:document.getElementById('lead-email').value.trim()
+  };
+  document.getElementById('lead-wrap').style.display='none';
+  logToSheets();
+  startChat();
+}
+
+function skipLead(){
+  LEAD={name:'Guest',number:'',email:''};
+  document.getElementById('lead-wrap').style.display='none';
+  startChat();
+}
+
+function startChat(){
+  document.getElementById('chat-wrap').style.display='flex';
+  document.getElementById('ai-nm').textContent=BIZ.emp+' · '+BIZ.name;
+  if(LEAD.name&&LEAD.name!=='Guest'){
+    document.getElementById('cust-nm').textContent='👤 '+LEAD.name;
+  }
+  // Increment chat count
+  TOTAL_CHATS++;
+  localStorage.setItem('aibe_total_chats',TOTAL_CHATS);
+  buildChips();
+  // Restore history or greet
+  if(HISTORY.length>0){
+    // Show last few messages
+    HISTORY.slice(-6).forEach(function(m){
+      addMsg(m.role==='user'?'user':'ai',m.content,false);
+    });
+    // Scroll to bottom
+    var msgs=document.getElementById('msgs');
+    setTimeout(function(){msgs.scrollTop=msgs.scrollHeight;},100);
+  } else {
+    sendGreeting();
+  }
+}
+
+function buildChips(){
+  var qs=BIZ.lang==='english'
+    ?['How much?','What\'s included?','Is it beginner-friendly?','How to pay?','Can I resell?']
+    :['Magkano?','Ano ang kasama?','Beginner-friendly ba?','Paano magbayad?','Pwede bang mag-resell?'];
+  var c=document.getElementById('chips');c.innerHTML='';
+  qs.forEach(function(q){
+    var el=document.createElement('button');el.className='chip';el.textContent=q;
+    el.onclick=function(){document.getElementById('cinp').value=q;sendMsg();};
+    c.appendChild(el);
+  });
+}
+
+function getLangRule(){
+  if(BIZ.lang==='english') return 'Reply in English only. Natural and conversational.';
+  if(BIZ.lang==='custom') return BIZ.customLang;
+  return 'Reply in modern Taglish — natural mix ng Filipino at English tulad ng ginagamit sa digital marketing at creator industry. Maging prangka, chill, pero punong-puno ng insider knowledge. Hindi pormal, hindi mabulaklak.';
+}
+
+function sysPrompt(){
+  var feats=BIZ.feats||{};
+  var cust=LEAD.name&&LEAD.name!=='Guest'?'\nCustomer name: '+LEAD.name+(LEAD.number?' ('+LEAD.number+')':''):'';
+  var upsellRule=feats.upsell?'\n- UPSELL RULE: Kung nagtatanong lang sila ng FunnelCraft PH o AI Business Employee, mention mo na mas sulit ang VIP ROI Framework (₱997) kasi kasama na lahat doon including FunnelCraft PH at AI Business Employee Setup — mas malaking value sa mas maliit na dagdag na bayad lang.':'';
+  return 'You are '+BIZ.emp+', a sales assistant para sa "'+BIZ.name+'".\n\nOFFERS:\n'+BIZ.services+'\n\nFAQ:\n'+(BIZ.faqs||'None.')+cust+'\n\nRules:\n- Tone: '+(BIZ.tone||'Friendly')+'\n- '+getLangRule()+(feats.sales?'\n- I-recommend ang mga products naturally at persuasively':'')+upsellRule+(feats.followup?'\n- Laging mag-end ng may follow-up question':(feats.emojis?'\n- Gumamit ng emojis naturally':'\n- No emojis'))+'\n- Never say you are an AI\n- I-state ang prices nang malinaw\n- Max 3-4 sentences per reply\n- Para sa payment: sabihin na may GCash (09231893139) at Maya (09461825985) option, tapos i-send ang receipt sa Messenger\n- Para sa VIP ROI Framework: may Pay Now button sila sa ibaba ng chat\n- Para sa FunnelCraft PH o AI Business Employee: may dedicated buttons din sa ibaba'+(LEAD.name&&LEAD.name!=='Guest'?'\n- Tawagan ang customer by name occasionally':'');
+}
+
+function sendGreeting(){
+  callAI([{role:'user',content:'Greet the customer'+(LEAD.name&&LEAD.name!=='Guest'?' named '+LEAD.name:'')+' warmly. Introduce yourself and the business. Ask how you can help. Max 2 sentences.'}],true);
+}
+
+function sendMsg(){
+  var inp=document.getElementById('cinp');
+  var text=inp.value.trim();
+  if(!text||BUSY)return;
+  inp.value='';inp.style.height='';
+  addMsg('user',text,true);
+  HISTORY.push({role:'user',content:text});
+  saveHistory();
+  callAI(HISTORY.slice(-14),false);
+}
+
+async function callAI(messages,isGreet){
+  BUSY=true;document.getElementById('sbtn').disabled=true;
+  var t=addTyping();
+  try{
+    var res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+BIZ.key,
+        'HTTP-Referer':'https://digiteralevi.github.io',
+        'X-Title':'AIBizEmployee-Digitera'
+      },
+      body:JSON.stringify({
+        model:'openrouter/auto',
+        messages:[{role:'system',content:sysPrompt()}].concat(messages),
+        max_tokens:350,
+        temperature:0.85
+      })
+    });
+    var json=await res.json();t.remove();
+    if(json.error){addMsg('ai','⚠️ '+json.error.message,true);}
+    else{
+      var reply=(json.choices[0].message.content||'').trim();
+      addMsg('ai',reply,true);
+      HISTORY.push({role:'assistant',content:reply});
+      saveHistory();
+    }
+  }catch(e){t.remove();addMsg('ai','⚠️ Connection error. Please try again.',true);}
+  BUSY=false;document.getElementById('sbtn').disabled=false;
+}
+
+function addMsg(role,text,scroll){
+  var box=document.getElementById('msgs');
+  var wrap=document.createElement('div');wrap.className='msg '+role;
+  var av=document.createElement('div');av.className='mav'+(role==='user'?' u':'');
+  av.innerHTML=role==='ai'?'<i class="ti ti-robot"></i>':'<i class="ti ti-user"></i>';
+  var inner=document.createElement('div');
+  var bub=document.createElement('div');bub.className='bubble';bub.textContent=text;
+  var ts=document.createElement('div');ts.className='mt';
+  ts.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  inner.appendChild(bub);inner.appendChild(ts);
+  wrap.appendChild(av);wrap.appendChild(inner);
+  box.appendChild(wrap);
+  if(scroll)box.scrollTop=box.scrollHeight;
+  return wrap;
+}
+
+function addTyping(){
+  var box=document.getElementById('msgs');
+  var w=document.createElement('div');w.className='tw';
+  var av=document.createElement('div');av.className='mav';av.innerHTML='<i class="ti ti-robot"></i>';
+  var b=document.createElement('div');b.className='tbub';b.innerHTML='<span></span><span></span><span></span>';
+  w.appendChild(av);w.appendChild(b);box.appendChild(w);box.scrollTop=box.scrollHeight;return w;
+}
+
+// IMAGE SHARING
+function handleImg(input){
+  if(!input.files||!input.files[0])return;
+  var file=input.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var box=document.getElementById('msgs');
+    var wrap=document.createElement('div');wrap.className='msg user';
+    var av=document.createElement('div');av.className='mav u';av.innerHTML='<i class="ti ti-user"></i>';
+    var inner=document.createElement('div');
+    var img=document.createElement('img');img.src=e.target.result;img.className='msg-img';
+    img.onclick=function(){window.open(e.target.result,'_blank');};
+    var ts=document.createElement('div');ts.className='mt';ts.style.textAlign='right';
+    ts.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    inner.appendChild(img);inner.appendChild(ts);
+    wrap.appendChild(av);wrap.appendChild(inner);
+    box.appendChild(wrap);box.scrollTop=box.scrollHeight;
+    // Tell AI about the image
+    HISTORY.push({role:'user',content:'[Customer sent an image/photo]'});
+    callAI(HISTORY.slice(-14),false);
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+// PAYMENT MODAL
+function openPayModal(type){
+  var modal=document.getElementById('pay-modal');
+  var title=document.getElementById('pay-modal-title');
+  title.textContent='FunnelCraft PH + AI Business Employee Bundle — ₱1,997';
+  modal.classList.add('show');
+  addMsg('ai','Para makuha ang FunnelCraft PH + AI Business Employee Bundle (₱1,997 one-time, lifetime access!), bayaran mo lang via GCash o Maya sa details sa ibaba. I-send ang receipt sa aming Messenger at ibibigay namin ang files mo agad! 🔥',true);
+}
+
+function closePayModal(){
+  document.getElementById('pay-modal').classList.remove('show');
+}
+
+function copyNum(num){
+  navigator.clipboard.writeText(num).then(function(){
+    alert('Nakopya na! '+num);
+  });
+}
+
+// PERSISTENT HISTORY
+function saveHistory(){
+  try{localStorage.setItem('aibe_history_'+BIZ.name,JSON.stringify(HISTORY.slice(-20)));}catch(e){}
+}
+
+// GOOGLE SHEETS CRM
+async function logToSheets(){
+  if(!BIZ.sheetId||LEAD.name==='Guest')return;
+  try{
+    var scriptUrl='https://script.google.com/macros/s/AKfycbxPLACEHOLDER/exec';
+    var data={
+      sheetId:BIZ.sheetId,
+      name:LEAD.name,
+      number:LEAD.number,
+      email:LEAD.email,
+      business:BIZ.name,
+      timestamp:new Date().toLocaleString('en-PH',{timeZone:'Asia/Manila'})
+    };
+    await fetch(scriptUrl,{method:'POST',mode:'no-cors',body:JSON.stringify(data)});
+  }catch(e){console.log('Sheets log skipped');}
+}
+
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function rsz(el){el.style.height='';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+</script>
+</body>
+</html>

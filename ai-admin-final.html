@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Business Employee — Admin Panel</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f0f18;color:#f0f0f0;min-height:100vh}
+.app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:#13131f}
+.header{padding:1.25rem 1.5rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1D9E75,#0d6e52);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo i{color:#fff;font-size:18px}
+.htitle{font-size:16px;font-weight:700;color:#fff}
+.hsub{font-size:11px;color:#555;margin-top:1px}
+.badge{font-size:10px;padding:3px 10px;border-radius:20px;background:rgba(245,166,35,.1);color:#F5A623;border:1px solid rgba(245,166,35,.25);margin-left:auto;font-weight:600}
+.screen{display:none;flex:1;flex-direction:column}
+.screen.active{display:flex}
+
+/* TAB NAV */
+.tab-nav{display:flex;border-bottom:1px solid #2a2a3a;background:#13131f}
+.tab{flex:1;padding:.75rem;text-align:center;font-size:12px;font-weight:600;color:#555;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:#5DCAA5;border-bottom-color:#1D9E75}
+.tab i{display:block;font-size:18px;margin-bottom:3px}
+
+/* SHARED */
+.body{padding:1.5rem;flex:1;overflow-y:auto}
+.sec{margin-bottom:1.5rem}
+.sec-label{font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.875rem;padding-bottom:6px;border-bottom:1px solid #1e1e2e}
+.field{margin-bottom:.875rem}
+.field label{display:block;font-size:12.5px;font-weight:500;color:#bbb;margin-bottom:4px}
+.field input,.field textarea,.field select{width:100%;padding:9px 11px;font-size:13.5px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;color:#f0f0f0;resize:none;font-family:inherit;transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#1D9E75}
+.field input::placeholder,.field textarea::placeholder{color:#3a3a4a}
+.field textarea{height:76px;line-height:1.5}
+.field select option{background:#1a1a2e}
+.field .hint{font-size:11px;color:#444;margin-top:3px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tone-btn{padding:8px 6px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;cursor:pointer;text-align:center;font-size:12px;color:#777;transition:all .15s;font-family:inherit}
+.tone-btn.sel{border-color:#1D9E75;background:rgba(29,158,117,.1);color:#5DCAA5;font-weight:600}
+.tone-btn i{display:block;font-size:18px;margin-bottom:3px}
+.extras{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.extra-toggle{padding:9px 11px;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a2e;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:12.5px;color:#777;transition:all .15s;font-family:inherit}
+.extra-toggle.on{border-color:#1D9E75;background:rgba(29,158,117,.08);color:#5DCAA5}
+.extra-toggle i{font-size:15px}
+.btn-main{width:100%;padding:11px;background:linear-gradient(135deg,#1D9E75,#0d6e52);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit}
+.btn-main:hover{opacity:.9}
+.btn-sec{width:100%;padding:10px;background:#1a1a2e;color:#ccc;border:1px solid #2a2a3a;border-radius:8px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;margin-top:8px}
+.btn-sec:hover{border-color:#1D9E75;color:#5DCAA5}
+.cta-bar{padding:1rem 1.5rem;border-top:1px solid #2a2a3a;display:flex;flex-direction:column;gap:8px}
+
+/* KEY BOX */
+.key-box{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:10px;padding:1rem;margin-bottom:1rem}
+.key-box label{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+.key-row{display:flex;gap:6px}
+.key-row input{flex:1;padding:8px 10px;font-size:12.5px;border:1px solid #2a2a3a;border-radius:7px;background:#13131f;color:#f0f0f0;font-family:monospace}
+.key-row input:focus{outline:none;border-color:#1D9E75}
+.key-row input::placeholder{color:#3a3a4a}
+.save-key-btn{padding:8px 14px;background:#1D9E75;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.key-msg{font-size:11px;margin-top:5px}
+.key-msg.ok{color:#5DCAA5}
+.key-msg.err{color:#FF6B6B}
+.key-msg.idle{color:#555}
+
+/* EMPLOYEES LIST */
+.emp-list{display:flex;flex-direction:column;gap:8px}
+.emp-card{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s}
+.emp-card:hover{border-color:#1D9E75}
+.emp-card.active-emp{border-color:#1D9E75;background:rgba(29,158,117,.06)}
+.emp-icon{width:36px;height:36px;border-radius:10px;background:rgba(29,158,117,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.emp-icon i{color:#5DCAA5;font-size:18px}
+.emp-info{flex:1;min-width:0}
+.emp-name{font-size:13px;font-weight:600;color:#fff}
+.emp-desc{font-size:11px;color:#555;margin-top:1px}
+.emp-actions{display:flex;gap:5px}
+.iBtn{width:28px;height:28px;border:1px solid #2a2a3a;border-radius:6px;background:#1a1a2e;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666;font-size:13px;transition:all .15s}
+.iBtn:hover{border-color:#1D9E75;color:#5DCAA5}
+.iBtn.red:hover{border-color:#FF6B6B;color:#FF6B6B}
+.add-emp-btn{width:100%;padding:10px;border:1px dashed #2a2a3a;border-radius:10px;background:transparent;color:#555;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;margin-top:8px}
+.add-emp-btn:hover{border-color:#1D9E75;color:#5DCAA5}
+
+/* URL BOX */
+.url-box{background:#0f0f18;border:2px solid rgba(29,158,117,.3);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.url-box-title{font-size:13px;font-weight:700;color:#5DCAA5;margin-bottom:.5rem;display:flex;align-items:center;gap:6px}
+.url-display{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:8px;padding:10px 12px;font-size:11px;color:#888;word-break:break-all;line-height:1.6;margin:.75rem 0;font-family:monospace;min-height:52px}
+.url-actions{display:flex;gap:8px}
+.url-btn{flex:1;padding:9px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.url-btn.copy{background:#1a1a2e;border:1px solid #2a2a3a;color:#ccc}
+.url-btn.copy:hover{border-color:#1D9E75;color:#5DCAA5}
+.url-btn.open{background:#1D9E75;border:none;color:#fff}
+.url-note{font-size:11px;color:#444;margin-top:.5rem;line-height:1.5}
+
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1rem}
+.stat-card{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:10px;padding:14px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;color:#5DCAA5}
+.stat-label{font-size:11px;color:#555;margin-top:3px}
+.stat-card.gold .stat-num{color:#F5A623}
+.leads-list{display:flex;flex-direction:column;gap:6px}
+.lead-row{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:8px;padding:10px 12px}
+.lead-row-name{font-size:13px;font-weight:600;color:#fff}
+.lead-row-details{font-size:11px;color:#555;margin-top:2px}
+.lead-row-time{font-size:10px;color:#3a3a4a;margin-top:2px}
+.empty-state{text-align:center;padding:2rem;color:#444}
+.empty-state i{font-size:32px;display:block;margin-bottom:8px;opacity:.2}
+
+/* FORM SCREEN */
+.form-top{padding:.875rem 1.5rem;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:10px}
+.form-top h2{font-size:14px;font-weight:700;color:#fff}
+#custom-lang-wrap{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo"><i class="ti ti-robot"></i></div>
+    <div>
+      <div class="htitle">AI Business Employee</div>
+      <div class="hsub">Admin Panel — Digitera Levi</div>
+    </div>
+    <div class="badge">ADMIN</div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <div class="tab active" onclick="showTab('employees')"><i class="ti ti-users"></i>Employees</div>
+    <div class="tab" onclick="showTab('analytics')"><i class="ti ti-chart-bar"></i>Analytics</div>
+    <div class="tab" onclick="showTab('settings')"><i class="ti ti-settings"></i>Settings</div>
+  </div>
+
+  <!-- EMPLOYEES TAB -->
+  <div class="screen active" id="tab-employees">
+    <div class="body">
+      <div class="sec">
+        <div class="sec-label">AI Employees</div>
+        <div class="emp-list" id="emp-list"></div>
+        <button class="add-emp-btn" onclick="showAddForm()"><i class="ti ti-plus"></i> Add New AI Employee</button>
+      </div>
+      <div class="sec">
+        <div class="sec-label">Customer Link Generator</div>
+        <div class="url-box">
+          <div class="url-box-title"><i class="ti ti-link"></i> Customer Chat Link</div>
+          <div style="font-size:12px;color:#666;margin-bottom:.75rem">Piliin ang AI Employee sa taas, tapos i-click Generate.</div>
+          <div class="url-display" id="url-display">Piliin ang AI Employee mula sa listahan, tapos i-click Generate Customer Link.</div>
+          <div class="url-actions" style="margin-top:.5rem">
+            <button class="url-btn copy" onclick="copyUrl()"><i class="ti ti-copy"></i> Copy</button>
+            <button class="url-btn open" onclick="openUrl()"><i class="ti ti-external-link"></i> Preview</button>
+          </div>
+          <div class="url-note">📌 I-share ang link na ito sa customers mo — sa Systeme.io, Facebook bio, o kahit saan.</div>
+        </div>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="btn-main" onclick="generateLink()"><i class="ti ti-sparkles"></i> Generate Customer Link</button>
+    </div>
+  </div>
+
+  <!-- ANALYTICS TAB -->
+  <div class="screen" id="tab-analytics">
+    <div class="body">
+      <div class="sec">
+        <div class="sec-label">Overview</div>
+        <div class="analytics-grid">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-chats">0</div>
+            <div class="stat-label">Total Chats</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-leads">0</div>
+            <div class="stat-label">Leads Captured</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-num" id="stat-employees">0</div>
+            <div class="stat-label">AI Employees</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-num" id="stat-sessions">0</div>
+            <div class="stat-label">Sessions Today</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-label">Recent Leads</div>
+        <div class="leads-list" id="leads-list">
+          <div class="empty-state"><i class="ti ti-users"></i><p>Wala pang leads</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="screen" id="tab-settings">
+    <div class="body">
+      <div class="sec">
+        <div class="sec-label">OpenRouter API Key</div>
+        <div class="key-box">
+          <label>Your API Key (isang beses lang i-save)</label>
+          <div class="key-row">
+            <input type="text" id="api-key" placeholder="sk-or-v1-..." autocomplete="off" spellcheck="false">
+            <button class="save-key-btn" onclick="saveKey()">Save</button>
+          </div>
+          <div class="key-msg idle" id="key-msg">Paste your OpenRouter key then click Save</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-label">Fixed Payment Details</div>
+        <div style="background:#1a1a2e;border:1px solid #2a2a3a;border-radius:10px;padding:1rem;font-size:13px;color:#888;line-height:1.8">
+          <div>💚 <strong style="color:#5DCAA5">GCash:</strong> 09231893139 — Levi Ugaban Mariano</div>
+          <div>💙 <strong style="color:#5DCAA5">Maya:</strong> 09461825985 — Levi Ugaban Mariano</div>
+          <div>💬 <strong style="color:#5DCAA5">Messenger:</strong> m.me/118441451362301</div>
+          <div>👑 <strong style="color:#F5A623">VIP ROI Link:</strong> digiteralevi.systeme.io/06031589</div>
+          <div style="font-size:11px;color:#444;margin-top:.5rem">Naka-hardcode na ito sa app — automatic nalang lalabas sa customers.</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-label">Data Management</div>
+        <button class="btn-sec" onclick="exportLeads()"><i class="ti ti-table-export"></i> Export Leads as CSV</button>
+        <button class="btn-sec" onclick="clearData()" style="color:#FF6B6B;border-color:#FF6B6B40;margin-top:6px"><i class="ti ti-trash"></i> Clear All Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT FORM SCREEN -->
+  <div class="screen" id="tab-form">
+    <div class="form-top">
+      <button class="iBtn" onclick="showTab('employees')"><i class="ti ti-arrow-left"></i></button>
+      <h2 id="form-title">Add AI Employee</h2>
+    </div>
+    <div class="body">
+      <div class="sec-label">Business Info</div>
+      <div class="row2">
+        <div class="field"><label>Business name</label><input id="f-name" placeholder="e.g. Digitera Levi"></div>
+        <div class="field"><label>Business type</label><input id="f-type" placeholder="e.g. Digital Products"></div>
+      </div>
+      <div class="field">
+        <label>Services & offers</label>
+        <textarea id="f-services" placeholder="VIP ROI Framework - ₱997&#10;FunnelCraft PH - ₱497&#10;AI Business Employee Setup - ₱497"></textarea>
+        <div class="hint">One per line. Include price.</div>
+      </div>
+      <div class="field">
+        <label>FAQs</label>
+        <textarea id="f-faqs" placeholder="Paano mabibili? GCash o Maya&#10;May refund ba? Oo, 100% guarantee"></textarea>
+        <div class="hint">One per line.</div>
+      </div>
+      <div class="sec-label" style="margin-top:1rem">AI Employee</div>
+      <div class="row2">
+        <div class="field"><label>Employee name</label><input id="f-empname" placeholder="e.g. Digitera"></div>
+        <div class="field">
+          <label>Language</label>
+          <select id="f-lang" onchange="toggleCustomLang()">
+            <option value="taglish">Taglish Modern 🇵🇭</option>
+            <option value="english">English 🇺🇸</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="custom-lang-wrap">
+        <label>Custom language instruction</label>
+        <input id="f-custom-lang" placeholder="e.g. Reply in Bisaya. Very casual.">
+      </div>
+      <div class="field">
+        <label>Reply tone</label>
+        <div class="tone-grid">
+          <button class="tone-btn sel" data-tone="Friendly & Warm"><i class="ti ti-mood-smile"></i>Friendly</button>
+          <button class="tone-btn" data-tone="Professional"><i class="ti ti-briefcase"></i>Professional</button>
+          <button class="tone-btn" data-tone="Casual & Chill"><i class="ti ti-music"></i>Casual</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Extra abilities</label>
+        <div class="extras">
+          <button class="extra-toggle on" data-feat="sales"><i class="ti ti-currency-peso"></i>Sales upsell</button>
+          <button class="extra-toggle on" data-feat="followup"><i class="ti ti-messages"></i>Follow-up q</button>
+          <button class="extra-toggle on" data-feat="emojis"><i class="ti ti-mood-heart"></i>Use emojis</button>
+          <button class="extra-toggle on" data-feat="upsell"><i class="ti ti-arrow-up-circle"></i>AI Upsell</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Lead capture</label>
+        <select id="f-leadmode">
+          <option value="on">Yes — ask name, number & email</option>
+          <option value="optional">Optional — they can skip</option>
+          <option value="off">No — go straight to chat</option>
+        </select>
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="btn-main" onclick="saveEmployee()"><i class="ti ti-check"></i> Save AI Employee</button>
+      <button class="btn-sec" onclick="showTab('employees')"><i class="ti ti-x"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var EMPLOYEES=JSON.parse(localStorage.getItem('aibe_employees')||'[]');
+var LEADS=JSON.parse(localStorage.getItem('aibe_leads')||'[]');
+var SELECTED_EMP=-1;
+var EDIT_IDX=-1;
+var TONE='Friendly & Warm';
+var FEATS={sales:true,followup:true,emojis:true,upsell:true};
+var GENERATED_URL='';
+
+// Init
+window.onload=function(){
+  var k=localStorage.getItem('aibe_or_key')||'';
+  if(k){
+    document.getElementById('api-key').value=k;
+    document.getElementById('key-msg').textContent='✅ Key loaded ('+k.length+' chars)';
+    document.getElementById('key-msg').className='key-msg ok';
+  }
+  // Pre-load default employees if none
+  if(EMPLOYEES.length===0){
+    EMPLOYEES=[
+      {name:'Digitera Levi',type:'Digital Products',emp:'Digitera',lang:'taglish',services:'VIP ROI Framework - ₱997 (Kasama lahat ng engines, vaults, bonuses, FunnelCraft PH, at AI Business Employee Setup)\nFunnelCraft PH - ₱497 (AI-powered sales page generator para sa Filipino market)\nAI Business Employee Setup - ₱497 (Done-for-you AI chat assistant para sa iyong business)',faqs:'Magkano ang VIP ROI Framework? ₱997 one-time, lifetime access. Kasama na ang FunnelCraft PH at AI Business Employee Setup.\nPwede bang kumuha ng FunnelCraft PH lang? Oo, ₱497 lang. GCash o Maya ang payment.\nPwede bang kumuha ng AI Business Employee Setup lang? Oo, ₱497 lang. GCash o Maya ang payment.\nMay refund ba? Oo! 100% Ironclad Satisfaction Shield — walang tanong-tanong na refund.\nBeginner-friendly ba? 100%! Dinisenyo para sa mga baguhan.\nAnong payment methods? GCash, Maya, at bank transfer para sa VIP ROI. May Pay Now button din sa chat.',tone:'Friendly & Warm',feats:{sales:true,followup:true,emojis:true,upsell:true},leadMode:'optional',customLang:''},
+      {name:'FunnelCraft PH',type:'AI Sales Page Generator',emp:'FunnelCraft AI',lang:'taglish',services:'FunnelCraft PH - ₱497 (AI-powered sales page generator)\nKasama sa VIP ROI Framework - ₱997 (mas sulit, kasama pa ang iba pang engines at bonuses)',faqs:'Ano ang FunnelCraft PH? Isang AI-powered sales page generator na ginawa para sa Filipino market. I-type lang ang business details mo — minutes lang, may high-converting sales page ka na.\nGaano katagal ang setup? Less than 10 minutes!\nMay coding knowledge ba na kailangan? Wala! Zero coding needed.\nPwede ba sa Systeme.io? Oo! Compatible sa kahit anong platform.',tone:'Friendly & Warm',feats:{sales:true,followup:true,emojis:true,upsell:true},leadMode:'optional',customLang:''},
+      {name:'AI Business Employee',type:'AI Chat Assistant Setup',emp:'BizEmployee AI',lang:'taglish',services:'AI Business Employee Setup - ₱497 (Done-for-you AI chat assistant)\nKasama sa VIP ROI Framework - ₱997 (mas sulit, kasama pa ang FunnelCraft PH at iba pang engines)',faqs:'Ano ang AI Business Employee? Isang AI-powered chat assistant na 24/7 sumasagot ng customers mo — kahit tulog ka na.\nKasama ba ang setup? Oo! Done-for-you ang setup. Ikaw na lang mag-fill up ng business details mo.\nMay monthly fee ba? Wala! One-time payment lang. Gamitin mo ang libreng OpenRouter API key.\nAno ang kasama? Lead capture, booking form, Pay Now button, conversation logs, at export feature.',tone:'Friendly & Warm',feats:{sales:true,followup:true,emojis:true,upsell:true},leadMode:'optional',customLang:''}
+    ];
+    saveEmployees();
+  }
+  renderEmployees();
+  renderAnalytics();
+  renderLeads();
+};
+
+document.querySelectorAll('.tone-btn').forEach(function(b){
+  b.onclick=function(){document.querySelectorAll('.tone-btn').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');TONE=b.dataset.tone;};
+});
+document.querySelectorAll('.extra-toggle').forEach(function(b){
+  b.onclick=function(){var f=b.dataset.feat;FEATS[f]=!FEATS[f];b.classList.toggle('on',FEATS[f]);};
+});
+
+function showTab(tab){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('tab-'+tab).classList.add('active');
+  var tabs=document.querySelectorAll('.tab');
+  var map={employees:0,analytics:1,settings:2};
+  if(map[tab]!==undefined) tabs[map[tab]].classList.add('active');
+  if(tab==='analytics'){renderAnalytics();renderLeads();}
+}
+
+function renderEmployees(){
+  var list=document.getElementById('emp-list');list.innerHTML='';
+  if(!EMPLOYEES.length){
+    list.innerHTML='<div class="empty-state"><i class="ti ti-robot"></i><p>Wala pang AI employee. Mag-add na!</p></div>';
+    return;
+  }
+  EMPLOYEES.forEach(function(emp,i){
+    var card=document.createElement('div');
+    card.className='emp-card'+(SELECTED_EMP===i?' active-emp':'');
+    card.onclick=function(){selectEmp(i);};
+    card.innerHTML='<div class="emp-icon"><i class="ti ti-robot"></i></div>'+
+      '<div class="emp-info"><div class="emp-name">'+esc(emp.emp)+' — '+esc(emp.name)+'</div>'+
+      '<div class="emp-desc">'+esc(emp.type||'Business')+'</div></div>'+
+      '<div class="emp-actions">'+
+      '<button class="iBtn" onclick="editEmp('+i+',event)" title="Edit"><i class="ti ti-pencil"></i></button>'+
+      '<button class="iBtn red" onclick="deleteEmp('+i+',event)" title="Delete"><i class="ti ti-trash"></i></button>'+
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+function selectEmp(i){
+  SELECTED_EMP=i;
+  renderEmployees();
+  document.getElementById('url-display').textContent='Pinili: '+EMPLOYEES[i].emp+' ('+EMPLOYEES[i].name+')\n\nI-click ang "Generate Customer Link" para makuha ang link.';
+}
+
+function editEmp(i,e){
+  e.stopPropagation();EDIT_IDX=i;
+  var emp=EMPLOYEES[i];
+  document.getElementById('form-title').textContent='Edit AI Employee';
+  document.getElementById('f-name').value=emp.name||'';
+  document.getElementById('f-type').value=emp.type||'';
+  document.getElementById('f-services').value=emp.services||'';
+  document.getElementById('f-faqs').value=emp.faqs||'';
+  document.getElementById('f-empname').value=emp.emp||'';
+  document.getElementById('f-lang').value=emp.lang||'taglish';
+  document.getElementById('f-custom-lang').value=emp.customLang||'';
+  document.getElementById('custom-lang-wrap').style.display=emp.lang==='custom'?'block':'none';
+  document.getElementById('f-leadmode').value=emp.leadMode||'optional';
+  TONE=emp.tone||'Friendly & Warm';
+  FEATS=Object.assign({sales:true,followup:true,emojis:true,upsell:true},emp.feats||{});
+  document.querySelectorAll('.tone-btn').forEach(function(b){b.classList.toggle('sel',b.dataset.tone===TONE);});
+  document.querySelectorAll('.extra-toggle').forEach(function(b){b.classList.toggle('on',!!FEATS[b.dataset.feat]);});
+  showTab('form');
+}
+
+function deleteEmp(i,e){
+  e.stopPropagation();
+  if(!confirm('Delete "'+EMPLOYEES[i].emp+'"?'))return;
+  EMPLOYEES.splice(i,1);saveEmployees();
+  if(SELECTED_EMP===i)SELECTED_EMP=-1;
+  else if(SELECTED_EMP>i)SELECTED_EMP--;
+  renderEmployees();
+}
+
+function showAddForm(){
+  EDIT_IDX=-1;
+  document.getElementById('form-title').textContent='Add AI Employee';
+  ['f-name','f-type','f-services','f-faqs','f-empname','f-custom-lang'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('f-lang').value='taglish';
+  document.getElementById('f-leadmode').value='optional';
+  document.getElementById('custom-lang-wrap').style.display='none';
+  TONE='Friendly & Warm';FEATS={sales:true,followup:true,emojis:true,upsell:true};
+  document.querySelectorAll('.tone-btn').forEach(function(b){b.classList.toggle('sel',b.dataset.tone===TONE);});
+  document.querySelectorAll('.extra-toggle').forEach(function(b){b.classList.add('on');});
+  showTab('form');
+}
+
+function saveEmployee(){
+  var name=document.getElementById('f-name').value.trim();
+  var services=document.getElementById('f-services').value.trim();
+  if(!name){alert('Lagyan mo ng business name!');return;}
+  if(!services){alert('Lagyan mo ng kahit isang service!');return;}
+  var lang=document.getElementById('f-lang').value;
+  var customLang=document.getElementById('f-custom-lang').value.trim();
+  if(lang==='custom'&&!customLang){alert('Lagyan mo ng custom language instruction!');return;}
+  var emp={
+    name:name,type:document.getElementById('f-type').value.trim(),
+    services:services,faqs:document.getElementById('f-faqs').value.trim(),
+    emp:document.getElementById('f-empname').value.trim()||'Digitera',
+    lang:lang,customLang:customLang,
+    tone:TONE,feats:Object.assign({},FEATS),
+    leadMode:document.getElementById('f-leadmode').value
+  };
+  if(EDIT_IDX>=0){EMPLOYEES[EDIT_IDX]=emp;if(SELECTED_EMP===EDIT_IDX)SELECTED_EMP=EDIT_IDX;}
+  else{EMPLOYEES.push(emp);SELECTED_EMP=EMPLOYEES.length-1;}
+  saveEmployees();renderEmployees();showTab('employees');
+}
+
+function saveEmployees(){localStorage.setItem('aibe_employees',JSON.stringify(EMPLOYEES));}
+
+function toggleCustomLang(){
+  document.getElementById('custom-lang-wrap').style.display=document.getElementById('f-lang').value==='custom'?'block':'none';
+}
+
+function saveKey(){
+  var k=document.getElementById('api-key').value.replace(/[\s\u00a0\u200b\ufeff\r\n\t]/g,'');
+  var msg=document.getElementById('key-msg');
+  if(k.length<20){msg.textContent='❌ Key too short';msg.className='key-msg err';return;}
+  localStorage.setItem('aibe_or_key',k);
+  msg.textContent='✅ Key saved ('+k.length+' chars)';
+  msg.className='key-msg ok';
+}
+
+function generateLink(){
+  if(SELECTED_EMP<0){alert('Piliin mo muna ang AI Employee mula sa listahan!');return;}
+  var k=localStorage.getItem('aibe_or_key')||'';
+  if(k.length<20){alert('I-save mo muna ang OpenRouter API key sa Settings tab!');return;}
+  var emp=EMPLOYEES[SELECTED_EMP];
+  var config=Object.assign({},emp,{
+    key:k,
+    gcash:'09231893139',
+    maya:'09461825985',
+    messenger:'https://m.me/118441451362301?ref=2560834',
+    vipLink:'https://digiteralevi.systeme.io/06031589',
+    sheetId:'1gvAwnY473WFcC70GTg65sCEzQu4qO0CMX9-ZkVzIj3c'
+  });
+  var encoded=encodeURIComponent(JSON.stringify(config));
+  var baseUrl=window.location.href.replace('ai-admin-final.html','ai-customer-final.html').split('?')[0];
+  GENERATED_URL=baseUrl+'?c='+encoded;
+  document.getElementById('url-display').textContent=GENERATED_URL;
+}
+
+function copyUrl(){
+  if(!GENERATED_URL){alert('I-generate mo muna ang link!');return;}
+  navigator.clipboard.writeText(GENERATED_URL).then(function(){
+    var btn=document.querySelector('.url-btn.copy');
+    var orig=btn.innerHTML;
+    btn.innerHTML='<i class="ti ti-check"></i> Copied!';
+    setTimeout(function(){btn.innerHTML=orig;},2000);
+  });
+}
+
+function openUrl(){
+  if(!GENERATED_URL){alert('I-generate mo muna ang link!');return;}
+  window.open(GENERATED_URL,'_blank');
+}
+
+function renderAnalytics(){
+  var totalChats=parseInt(localStorage.getItem('aibe_total_chats')||'0');
+  var leads=JSON.parse(localStorage.getItem('aibe_leads')||'[]');
+  var today=new Date().toDateString();
+  var todaySessions=leads.filter(function(l){return new Date(l.timestamp).toDateString()===today;}).length;
+  document.getElementById('stat-chats').textContent=totalChats;
+  document.getElementById('stat-leads').textContent=leads.length;
+  document.getElementById('stat-employees').textContent=EMPLOYEES.length;
+  document.getElementById('stat-sessions').textContent=todaySessions;
+}
+
+function renderLeads(){
+  var leads=JSON.parse(localStorage.getItem('aibe_leads')||'[]');
+  var list=document.getElementById('leads-list');list.innerHTML='';
+  if(!leads.length){
+    list.innerHTML='<div class="empty-state"><i class="ti ti-users"></i><p>Wala pang leads</p></div>';
+    return;
+  }
+  leads.slice().reverse().slice(0,20).forEach(function(l){
+    var row=document.createElement('div');row.className='lead-row';
+    row.innerHTML='<div class="lead-row-name">'+esc(l.name)+'</div>'+
+      '<div class="lead-row-details">'+(l.number?'📱 '+esc(l.number):'')+
+      (l.email?' · 📧 '+esc(l.email):'')+'</div>'+
+      '<div class="lead-row-time">'+esc(l.business||'')+(l.timestamp?' · '+l.timestamp:'')+'</div>';
+    list.appendChild(row);
+  });
+}
+
+function exportLeads(){
+  var leads=JSON.parse(localStorage.getItem('aibe_leads')||'[]');
+  if(!leads.length){alert('Wala pang leads.');return;}
+  var rows=[['Name','Number','Email','Business','Timestamp']];
+  leads.forEach(function(l){rows.push([l.name||'',l.number||'',l.email||'',l.business||'',l.timestamp||'']);});
+  var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='leads_'+Date.now()+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function clearData(){
+  if(!confirm('Clear all data? Hindi na ito mababawi!'))return;
+  localStorage.removeItem('aibe_leads');localStorage.removeItem('aibe_total_chats');
+  alert('Data cleared!');renderAnalytics();renderLeads();
+}
+
+function esc(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>
