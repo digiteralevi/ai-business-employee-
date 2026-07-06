@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+  .topbar { background: #1e293b; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; }
+  .topbar h1 { font-size: 1.1rem; font-weight: 700; color: #f8fafc; }
+  #statusBar { font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .dot-ok { background: #10b981; } .dot-err { background: #ef4444; } .dot-idle { background: #64748b; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+
+  .tab-bar { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 8px; font-size: 0.84rem; font-weight: 600; cursor: pointer; border: none; background: #1e293b; color: #64748b; transition: all 0.2s; }
+  .tab.active { background: #6366f1; color: #fff; }
+  .pane { display: none; } .pane.active { display: block; }
+
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 0.82rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #334155; }
+
+  label { display: block; font-size: 0.82rem; color: #94a3b8; margin-bottom: 6px; margin-top: 14px; }
+  label:first-of-type { margin-top: 0; }
+  input[type="text"], textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; padding: 10px 14px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
+  input[type="text"]:focus, textarea:focus { border-color: #6366f1; }
+  textarea { resize: vertical; min-height: 120px; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width:560px){ .row2 { grid-template-columns: 1fr; } }
+
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 8px; font-size: 0.86rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s, transform 0.1s; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: #6366f1; color: #fff; } .btn-primary:hover { opacity: 0.88; }
+  .btn-success { background: #10b981; color: #fff; } .btn-success:hover { opacity: 0.88; }
+  .btn-ghost { background: #334155; color: #cbd5e1; } .btn-ghost:hover { background: #475569; }
+  .btn-danger { background: #7f1d1d; color: #fca5a5; }
+  .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+  /* ===== NOTICE BOX ===== */
+  .notice {
+    background: #1c2a1c; border: 1px solid #10b981; border-radius: 10px;
+    padding: 14px 18px; font-size: 0.84rem; color: #6ee7b7;
+    margin-bottom: 20px; line-height: 1.6;
+  }
+  .notice strong { color: #34d399; }
+
+  /* ===== HOW IT WORKS ===== */
+  .steps { counter-reset: step; }
+  .step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #6366f1; color: #fff; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-text { font-size: 0.86rem; color: #94a3b8; line-height: 1.6; }
+  .step-text strong { color: #e2e8f0; }
+
+  /* ===== IMAGE UPLOAD ===== */
+  .upload-zone { border: 2px dashed #334155; border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: #0f172a; }
+  .upload-zone:hover, .upload-zone.dragover { border-color: #6366f1; background: #1a1f35; }
+  .upload-zone p { color: #64748b; font-size: 0.86rem; margin-top: 6px; }
+  .upload-zone .icon { font-size: 2rem; }
+  #fileInput { display: none; }
+
+  .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 16px; }
+  .img-card { background: #0f172a; border: 1px solid #334155; border-radius: 10px; overflow: hidden; }
+  .img-card img { width: 100%; height: 110px; object-fit: cover; display: block; }
+  .img-card .img-info { padding: 8px 10px; }
+  .img-card .img-name { font-size: 0.74rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .img-card .img-desc { font-size: 0.7rem; color: #475569; margin-top: 2px; }
+  .img-card .img-actions { margin-top: 6px; }
+  .img-del { background: #7f1d1d; color: #fca5a5; border: none; border-radius: 5px; padding: 3px 8px; font-size: 0.72rem; cursor: pointer; }
+  .img-del:hover { background: #991b1b; }
+
+  .img-upload-item { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .img-upload-row { display: flex; gap: 12px; align-items: flex-start; }
+  .img-upload-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+  .img-upload-fields { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .img-upload-fields input { font-size: 0.82rem; padding: 7px 10px; }
+
+  .progress-bar { height: 4px; background: #334155; border-radius: 4px; margin-top: 10px; overflow: hidden; display: none; }
+  .progress-fill { height: 100%; background: #6366f1; transition: width 0.3s; width: 0%; }
+  .uploading-indicator { font-size: 0.82rem; color: #6366f1; margin-top: 8px; display: none; }
+
+  /* ===== LEADS ===== */
+  .leads-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .leads-table th { text-align: left; padding: 8px 12px; color: #64748b; font-weight: 600; border-bottom: 1px solid #334155; }
+  .leads-table td { padding: 9px 12px; border-bottom: 1px solid #1a2436; }
+  .leads-table tr:hover td { background: #1a2436; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+  .badge-bundle { background: #312e81; color: #a5b4fc; }
+  .badge-vip { background: #1a3a2a; color: #6ee7b7; }
+  .badge-lead { background: #292524; color: #d6d3d1; }
+
+  .link-box { background: #0f172a; border: 1px solid #6366f1; border-radius: 8px; padding: 12px 16px; font-size: 0.82rem; color: #6366f1; word-break: break-all; margin-top: 12px; display: none; }
+  .link-box.show { display: block; }
+  .config-preview { background: #0f172a; border-radius: 8px; padding: 14px; font-size: 0.8rem; color: #64748b; white-space: pre-wrap; margin-top: 8px; max-height: 160px; overflow-y: auto; border: 1px solid #334155; }
+  .empty-state { text-align: center; padding: 40px; color: #475569; font-size: 0.88rem; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #10b981; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transform: translateY(80px); opacity: 0; transition: all 0.35s; z-index: 9999; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: #ef4444; }
+
+  /* ===== LOCK SCREEN ===== */
+  #lockScreen {
+    position: fixed; inset: 0; background: #0f172a;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 99999; flex-direction: column; gap: 20px;
+  }
+  #lockScreen.hidden { display: none; }
+  .lock-box {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 16px; padding: 40px 36px; width: 340px;
+    text-align: center;
+  }
+  .lock-box .lock-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .lock-box h2 { font-size: 1.2rem; font-weight: 800; color: #f8fafc; margin-bottom: 6px; }
+  .lock-box p { font-size: 0.84rem; color: #64748b; margin-bottom: 24px; }
+  .lock-input {
+    width: 100%; background: #0f172a; border: 1px solid #334155;
+    border-radius: 10px; color: #f1f5f9; padding: 12px 16px;
+    font-size: 1rem; font-family: inherit; outline: none;
+    text-align: center; letter-spacing: 3px; margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .lock-input:focus { border-color: #6366f1; }
+  .lock-input.error { border-color: #ef4444; animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .lock-btn {
+    width: 100%; padding: 12px; background: #6366f1; color: #fff;
+    border: none; border-radius: 10px; font-size: 0.95rem;
+    font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+  }
+  .lock-btn:hover { opacity: 0.88; }
+  .lock-error { font-size: 0.82rem; color: #ef4444; margin-top: 8px; display: none; }
+
+  /* Hidden iframe for no-cors POST */
+  #hiddenFrame { display: none; }
+</style>
+</head>
+<body>
+
+<iframe id="hiddenFrame" name="hiddenFrame"></iframe>
+
+<!-- ===== LOCK SCREEN ===== -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <h2>Admin Panel</h2>
+    <p>I-enter ang password para magpatuloy.</p>
+    <input type="password" class="lock-input" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPassword()">
+    <button class="lock-btn" onclick="checkPassword()">I-unlock →</button>
+    <div class="lock-error" id="lockError">❌ Mali ang password. Subukan ulit.</div>
+  </div>
+</div>
+
+<div class="topbar">
+  <h1>⚙️ Admin Panel</h1>
+  <div id="statusBar">
+    <span class="status-dot dot-idle" id="statusDot"></span>
+    <span id="statusText">Ready</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- NOTICE -->
+  <div class="notice">
+    ✅ <strong>File:// Mode</strong> — Gumagana na kahit hindi naka-host! Ginagamit natin ang redirect trick para maiwasan ang CORS. Ang <strong>Save</strong> ay magbubukas ng bagong tab sandali (normal ito) tapos masisara na agad.
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('config', this)">📝 Config</button>
+    <button class="tab" onclick="switchTab('images', this)">🖼️ Product Images</button>
+    <button class="tab" onclick="switchTab('leads', this)">📋 Leads</button>
+    <button class="tab" onclick="switchTab('link', this)">🔗 Generate Link</button>
+  </div>
+
+  <!-- ===== CONFIG TAB ===== -->
+  <div id="tab-config" class="pane active">
+    <div class="card">
+      <div class="card-title">📦 Business Info</div>
+      <label>Business / Brand Name</label>
+      <input type="text" id="brandName" placeholder="e.g. ROI Mastery PH">
+      <label>Tagline</label>
+      <input type="text" id="tagline" placeholder="e.g. Kumita Online — Totoong Estratehiya">
+      <label>Contact / Messenger Link</label>
+      <input type="text" id="messengerLink" placeholder="https://m.me/yourpage">
+    </div>
+
+    <div class="card">
+      <div class="card-title">💰 Pricing</div>
+      <div class="row2">
+        <div>
+          <label>Bundle Package — Name</label>
+          <input type="text" id="bundleName" placeholder="e.g. Complete Bundle">
+          <label>Bundle — Price</label>
+          <input type="text" id="bundlePrice" placeholder="e.g. ₱1,997">
+          <label>Bundle — Payment Link</label>
+          <input type="text" id="bundleLink" placeholder="https://...">
+        </div>
+        <div>
+          <label>VIP Package — Name</label>
+          <input type="text" id="vipName" placeholder="e.g. VIP ROI">
+          <label>VIP — Price</label>
+          <input type="text" id="vipPrice" placeholder="e.g. ₱997">
+          <label>VIP — Payment Link</label>
+          <input type="text" id="vipLink" placeholder="https://...">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 AI Bot Settings</div>
+      <label>AI Provider</label>
+      <select id="aiProvider" style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f1f5f9;padding:10px 14px;font-size:0.9rem;font-family:inherit;outline:none;">
+        <option value="gemini">Gemini (Google) — Libre ✅</option>
+        <option value="openrouter">OpenRouter — Libre ✅</option>
+      </select>
+      <label>API Key <span style="color:#ef4444;font-size:0.75rem;">(para sa AI chatbot)</span></label>
+      <input type="password" id="aiApiKey" placeholder="I-paste ang API key dito..." style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f1f5f9;padding:10px 14px;font-size:0.9rem;font-family:inherit;outline:none;">
+      <p style="font-size:0.78rem;color:#475569;margin-top:6px;">
+        Gemini: <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#6366f1;">aistudio.google.com/apikey</a> — libre! &nbsp;|&nbsp;
+        OpenRouter: <a href="https://openrouter.ai" target="_blank" style="color:#6366f1;">openrouter.ai</a>
+      </p>
+      <label>Admin Password <span style="color:#ef4444;font-size:0.75rem;">(lock screen ng admin panel)</span></label>
+      <input type="password" id="adminPassword" placeholder="I-set ang password mo..." style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f1f5f9;padding:10px 14px;font-size:0.9rem;font-family:inherit;outline:none;">
+      <p style="font-size:0.78rem;color:#475569;margin-top:6px;">Kapag naka-save — kailangan ng password para buksan ang admin panel.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📄 Services <span style="font-size:0.75rem;color:#10b981;font-weight:400;text-transform:none;">(makikita ng customers)</span></div>
+      <p style="font-size:0.82rem;color:#64748b;margin-bottom:10px;">Ito ang lalabas sa customer page — pwedeng maigsi at presentable.</p>
+      <textarea id="servicesText" placeholder="Halimbawa:&#10;✅ VIP ROI Framework — ₱997&#10;✅ Complete Bundle — ₱1,997&#10;✅ 1-on-1 Coaching&#10;✅ Done-for-you Funnels" rows="6"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title">❓ FAQs <span style="font-size:0.75rem;color:#10b981;font-weight:400;text-transform:none;">(makikita ng customers)</span></div>
+      <p style="font-size:0.82rem;color:#64748b;margin-bottom:10px;">Q: at A: format. Lalabas bilang accordion sa customer page.</p>
+      <textarea id="faqsText" placeholder="Q: Anong kasama sa bundle?&#10;A: ...&#10;&#10;Q: May guarantiya ba?&#10;A: ..." rows="6"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 AI Bot Instructions <span style="font-size:0.75rem;color:#ef4444;font-weight:400;text-transform:none;">(HIDDEN — para lang sa AI)</span></div>
+      <p style="font-size:0.82rem;color:#64748b;margin-bottom:10px;">Ito ang system prompt ng AI bot — <strong style="color:#ef4444">hindi makikita ng customers</strong>. Dito mo ilagay ang detalyadong script, pricing strategy, objection handling, etc.</p>
+      <textarea id="botInstructions" placeholder="Ikaw ay isang AI sales assistant para sa [brand]...&#10;&#10;TUNGKOL SA PRODUKTO:&#10;...&#10;&#10;OBJECTION HANDLING:&#10;...&#10;&#10;CTA:&#10;..." rows="10"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎨 Appearance</div>
+      <label>Hero / Headline Text</label>
+      <input type="text" id="heroText" placeholder="e.g. Kumita Online. Totoo. Ngayon.">
+      <label>Sub-headline</label>
+      <input type="text" id="subText" placeholder="e.g. Ang tamang sistema para sa iyong online business.">
+      <label>CTA Button Text</label>
+      <input type="text" id="ctaText" placeholder="e.g. Makipag-usap sa Amin">
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="saveConfig()">💾 I-save ang Config</button>
+      <button class="btn btn-ghost" onclick="loadData('config')">🔄 I-load mula sa Sheets</button>
+    </div>
+  </div>
+
+  <!-- ===== IMAGES TAB ===== -->
+  <div id="tab-images" class="pane">
+    <div class="card">
+      <div class="card-title">🔑 ImgBB API Key</div>
+      <p style="font-size:0.84rem;color:#64748b;margin-bottom:12px;">
+        Libre ang ImgBB. Pumunta sa <a href="https://api.imgbb.com" target="_blank" style="color:#6366f1;">api.imgbb.com</a> → mag-sign up → kumuha ng API key.
+      </p>
+      <input type="text" id="imgbbApiKey" placeholder="I-paste dito ang iyong ImgBB API key" value="3c2faf3ba2a018485e1a41a941156f6b" oninput="localStorage.setItem('imgbbKey', this.value)">
+    </div>
+
+    <div class="card">
+      <div class="card-title">🖼️ Mag-upload ng Product Images</div>
+      <p style="font-size:0.84rem;color:#64748b;margin-bottom:16px;">
+        Base64 format — ise-save sa Google Sheets. Max <strong>800KB</strong> per image. Ipapakita ng AI bot sa customers kapag nagtanong ng sample/larawan.
+      </p>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
+        <div class="icon">📁</div>
+        <strong style="color:#e2e8f0;">Mag-click o i-drag ang mga images dito</strong>
+        <p>PNG, JPG, WEBP — Max 800KB bawat isa</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)">
+      <div id="pendingUploads" style="margin-top:16px;"></div>
+      <div class="uploading-indicator" id="uploadingIndicator">⏳ Nag-a-upload...</div>
+      <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="actions" id="uploadActions" style="display:none;">
+        <button class="btn btn-success" onclick="uploadAllImages()">☁️ I-save sa Google Sheets</button>
+        <button class="btn btn-ghost" onclick="clearPending()">🗑️ I-clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 Mga Naka-save na Images</div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <button class="btn btn-ghost btn-sm" onclick="loadData('images')">🔄 I-refresh</button>
+      </div>
+      <div id="savedImagesGrid"><div class="empty-state">I-click ang I-refresh para makita ang mga images.</div></div>
+    </div>
+  </div>
+
+  <!-- ===== LEADS TAB ===== -->
+  <div id="tab-leads" class="pane">
+    <div class="card">
+      <div class="card-title">📋 Leads / Submissions</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <button class="btn btn-ghost btn-sm" onclick="loadData('leads')">🔄 I-refresh</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportLeads()">⬇️ Export CSV</button>
+      </div>
+      <div id="leadsContainer"><div class="empty-state">I-click ang I-refresh para makita ang leads.</div></div>
+    </div>
+  </div>
+
+  <!-- ===== LINK TAB ===== -->
+  <div id="tab-link" class="pane">
+    <div class="card">
+      <div class="card-title">🔗 Generate Customer Link</div>
+      <p style="font-size:0.85rem;color:#64748b;margin-bottom:16px;">I-save muna ang config at images, tapos i-generate ang link para sa customers.</p>
+      <label>Customer File URL</label>
+      <input type="text" id="customerFileUrl" placeholder="https://yoursite.com/customer.html">
+      <div class="actions">
+        <button class="btn btn-success" onclick="generateLink()">🔗 Generate Link</button>
+        <button class="btn btn-ghost" onclick="copyLink()">📋 Copy Link</button>
+      </div>
+      <div class="link-box" id="generatedLink"></div>
+      <div style="margin-top:20px;padding-top:18px;border-top:1px solid #334155;">
+        <p style="font-size:0.82rem;color:#64748b;margin-bottom:8px;">Config preview:</p>
+        <div class="config-preview" id="configPreview">Walang config na na-load pa.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SCRIPT URL — updated na Apps Script deployment
+// ============================================================
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBc2HhQBDZpaofGDIDbV8ftuQYlxaJqRXL1nv15g1upur2ETZRo0rWlADLA6gYSAE/exec';
+
+let currentLeads = [];
+let pendingImages = [];
+
+// ===== TABS =====
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'leads') loadData('leads');
+  if (name === 'images') loadData('images');
+}
+
+// ===== STATUS =====
+function setStatus(msg, type = 'idle') {
+  document.getElementById('statusDot').className = 'status-dot ' +
+    (type === 'ok' ? 'dot-ok' : type === 'err' ? 'dot-err' : 'dot-idle');
+  document.getElementById('statusText').textContent = msg;
+}
+
+// ===== TOAST =====
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ============================================================
+// JSONP — ang tanging paraan na gagana sa lahat ng setup
+// Gumagamit ng <script> tag para bypass CORS completely
+// ============================================================
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+    const script = document.createElement('script');
+    const sep = url.includes('?') ? '&' : '?';
+    script.src = url + sep + 'callback=' + cb;
+
+    const cleanup = () => {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+
+    window[cb] = (data) => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('Failed to fetch')); };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timeout — walang response mula sa Apps Script'));
+    }, 12000);
+
+    window[cb] = (data) => { clearTimeout(timer); cleanup(); resolve(data); };
+
+    document.head.appendChild(script);
+  });
+}
+
+// Alias para sa existing code
+function fetchData(url) { return jsonp(url); }
+
+// Para sa saveConfig — chunk ang config para hindi maging too long ang URL
+async function postData(payload) {
+  if (payload.action === 'saveConfig') {
+    // Split config into small chunks sent one by one
+    const config = payload.config;
+    const entries = Object.entries(config);
+    // Send all as individual key-value pairs via JSONP GET
+    for (const [key, value] of entries) {
+      const url = SCRIPT_URL + '?action=saveConfigField&key=' + encodeURIComponent(key) + '&value=' + encodeURIComponent(value);
+      try { await jsonp(url); } catch(e) { console.warn('Field save warn:', key, e); }
+    }
+    // Signal done
+    return { status: 'ok' };
+  }
+  // For other actions, build GET URL
+  const params = new URLSearchParams({ action: payload.action });
+  Object.entries(payload).forEach(([k, v]) => { if (k !== 'action') params.append(k, v); });
+  return jsonp(SCRIPT_URL + '?' + params.toString());
+}
+
+// ===== LOAD DATA (config / leads / images) =====
+async function loadData(type) {
+  setStatus('Nag-lo-load...', 'idle');
+  try {
+    const data = await fetchData(SCRIPT_URL + '?action=get' + type.charAt(0).toUpperCase() + type.slice(1));
+
+    if (type === 'config') {
+      if (data.config) {
+        fillForm(data.config);
+        setStatus('Loaded!', 'ok');
+        showToast('✅ Config na-load!');
+      } else {
+        setStatus('Walang config', 'idle');
+        showToast('⚠️ Wala pang config na naka-save.', true);
+      }
+    } else if (type === 'leads') {
+      currentLeads = data.leads || [];
+      renderLeads();
+      setStatus('Loaded!', 'ok');
+    } else if (type === 'images') {
+      renderSavedImages(data.images || []);
+      setStatus('Loaded!', 'ok');
+    }
+  } catch (err) {
+    setStatus('Error', 'err');
+    showToast('❌ Hindi ma-load. Tingnan ang Apps Script.', true);
+    console.error(err);
+  }
+}
+
+// ===== FORM HELPERS =====
+function getFormConfig() {
+  return {
+    brandName: v('brandName'), tagline: v('tagline'), messengerLink: v('messengerLink'),
+    bundleName: v('bundleName'), bundlePrice: v('bundlePrice'), bundleLink: v('bundleLink'),
+    vipName: v('vipName'), vipPrice: v('vipPrice'), vipLink: v('vipLink'),
+    servicesText: v('servicesText'), faqsText: v('faqsText'),
+    botInstructions: v('botInstructions'),
+    aiProvider: v('aiProvider'),
+    aiApiKey: v('aiApiKey'),
+    adminPassword: v('adminPassword'),
+    heroText: v('heroText'), subText: v('subText'), ctaText: v('ctaText'),
+  };
+}
+function v(id) { return document.getElementById(id).value; }
+function fillForm(cfg) {
+  Object.keys(cfg).forEach(k => { const el = document.getElementById(k); if (el) el.value = cfg[k]; });
+  updateConfigPreview(cfg);
+}
+function updateConfigPreview(cfg) {
+  document.getElementById('configPreview').textContent =
+    `Brand: ${cfg.brandName||'—'}\nBundle: ${cfg.bundleName||'—'} — ${cfg.bundlePrice||'—'}\nVIP: ${cfg.vipName||'—'} — ${cfg.vipPrice||'—'}\nServices: ${cfg.servicesText ? cfg.servicesText.substring(0,80)+'…' : '—'}`;
+}
+
+// ===== SAVE CONFIG =====
+async function saveConfig() {
+  setStatus('Nag-se-save...', 'idle');
+  const config = getFormConfig();
+  try {
+    const data = await postData({ action: 'saveConfig', config });
+    if (data.status === 'ok') {
+      setStatus('Saved!', 'ok');
+      showToast('✅ Config na-save sa Google Sheets!');
+      updateConfigPreview(config);
+    } else throw new Error(data.message || 'Error');
+  } catch (err) {
+    setStatus('Error', 'err');
+    showToast('❌ ' + err.message, true);
+    console.error(err);
+  }
+}
+
+// ===== IMAGE UPLOAD =====
+function dragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('dragover'); }
+function dragLeave() { document.getElementById('uploadZone').classList.remove('dragover'); }
+function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
+
+function handleFiles(files) {
+  Array.from(files).filter(f => f.type.startsWith('image/')).forEach(file => {
+    if (file.size > 800 * 1024) { showToast('❌ ' + file.name + ' — sobrang laki (max 800KB)', true); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      pendingImages.push({ file, dataUrl: e.target.result, name: file.name.replace(/\.[^.]+$/, ''), desc: '' });
+      renderPending();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPending() {
+  const c = document.getElementById('pendingUploads');
+  const a = document.getElementById('uploadActions');
+  if (!pendingImages.length) { c.innerHTML = ''; a.style.display = 'none'; return; }
+  a.style.display = 'flex';
+  c.innerHTML = pendingImages.map((img, i) => `
+    <div class="img-upload-item">
+      <div class="img-upload-row">
+        <img src="${img.dataUrl}" alt="preview">
+        <div class="img-upload-fields">
+          <input type="text" placeholder="Product Name *" value="${img.name}" oninput="pendingImages[${i}].name=this.value">
+          <input type="text" placeholder="Paglalarawan (optional)" oninput="pendingImages[${i}].desc=this.value">
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="removePending(${i})" style="flex-shrink:0">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function removePending(i) { pendingImages.splice(i, 1); renderPending(); }
+function clearPending() { pendingImages = []; renderPending(); document.getElementById('fileInput').value = ''; }
+
+async function uploadAllImages() {
+  if (!pendingImages.length) return;
+  if (pendingImages.some(img => !img.name.trim())) { showToast('⚠️ Lagyan ng pangalan ang lahat!', true); return; }
+
+  const apiKey = document.getElementById('imgbbApiKey').value.trim();
+  if (!apiKey) { showToast('⚠️ Ilagay muna ang ImgBB API Key sa settings!', true); return; }
+
+  document.getElementById('uploadingIndicator').style.display = 'block';
+  document.getElementById('progressBar').style.display = 'block';
+  setStatus('Nag-u-upload sa ImgBB...', 'idle');
+
+  let success = 0;
+  for (let i = 0; i < pendingImages.length; i++) {
+    const img = pendingImages[i];
+    try {
+      // Compress muna
+      const compressed = await compressImage(img.dataUrl, 800, 0.75);
+      // Strip data:image/jpeg;base64, prefix
+      const base64 = compressed.split(',')[1];
+
+      // Upload sa ImgBB
+      const formData = new FormData();
+      formData.append('key', apiKey);
+      formData.append('image', base64);
+      formData.append('name', img.name);
+
+      const res = await fetch('https://api.imgbb.com/1/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const imageUrl = data.data.url;
+        // I-save ang URL (hindi base64) sa Google Sheets via JSONP
+        await jsonp(SCRIPT_URL +
+          '?action=saveImage' +
+          '&imageName=' + encodeURIComponent(img.name) +
+          '&imageDesc=' + encodeURIComponent(img.desc) +
+          '&imageData=' + encodeURIComponent(imageUrl) +
+          '&timestamp=' + encodeURIComponent(new Date().toLocaleString('en-PH')));
+        success++;
+      }
+    } catch (err) { console.error('Upload error:', err); }
+    document.getElementById('progressFill').style.width = ((i+1)/pendingImages.length*100) + '%';
+  }
+
+  document.getElementById('uploadingIndicator').style.display = 'none';
+  setTimeout(() => {
+    document.getElementById('progressBar').style.display = 'none';
+    document.getElementById('progressFill').style.width = '0%';
+  }, 800);
+
+  if (success === pendingImages.length) {
+    setStatus('Uploaded!', 'ok');
+    showToast(`✅ ${success} image/s na-upload sa ImgBB at na-save sa Sheets!`);
+    clearPending();
+    loadData('images');
+  } else if (success > 0) {
+    setStatus('Partial', 'ok');
+    showToast(`⚠️ ${success}/${pendingImages.length} lang ang nag-upload.`, true);
+  } else {
+    setStatus('Error', 'err');
+    showToast('❌ Hindi na-upload. I-check ang API key.', true);
+  }
+}
+
+// Compress image using canvas
+function compressImage(dataUrl, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
+function renderSavedImages(images) {
+  const grid = document.getElementById('savedImagesGrid');
+  if (!images.length) { grid.innerHTML = '<div class="empty-state">Wala pang naka-save na images.</div>'; return; }
+  grid.innerHTML = `<div class="img-grid">${images.map(img => `
+    <div class="img-card">
+      <img src="${img.data}" alt="${img.name}">
+      <div class="img-info">
+        <div class="img-name" title="${img.name}">${img.name}</div>
+        <div class="img-desc">${img.desc||'—'}</div>
+        <div class="img-actions"><button class="img-del" onclick="deleteImage('${img.id}')">🗑️ Burahin</button></div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+async function deleteImage(id) {
+  if (!confirm('I-delete ang image na ito?')) return;
+  try {
+    const data = await fetchData(SCRIPT_URL + '?action=deleteImage&id=' + encodeURIComponent(id));
+    if (data.status === 'ok') { showToast('🗑️ Deleted!'); loadData('images'); }
+    else showToast('❌ Hindi na-delete.', true);
+  } catch (err) { showToast('❌ Error.', true); }
+}
+
+// ===== LEADS =====
+function renderLeads() {
+  const c = document.getElementById('leadsContainer');
+  if (!currentLeads.length) { c.innerHTML = '<div class="empty-state">Wala pang leads.</div>'; return; }
+  c.innerHTML = `<table class="leads-table"><thead><tr><th>#</th><th>Pangalan</th><th>Contact</th><th>Type</th><th>Petsa</th></tr></thead><tbody>
+    ${currentLeads.map((l,i) => `<tr>
+      <td style="color:#475569">${i+1}</td><td>${l.name||'—'}</td><td>${l.contact||'—'}</td>
+      <td><span class="badge badge-${l.type||'lead'}">${l.type||'lead'}</span></td>
+      <td style="color:#475569">${l.date||'—'}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function exportLeads() {
+  if (!currentLeads.length) { showToast('Wala pang leads!', true); return; }
+  const csv = 'Pangalan,Contact,Type,Petsa\n' + currentLeads.map(l =>
+    `"${l.name||''}","${l.contact||''}","${l.type||''}","${l.date||''}"`).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'leads.csv'; a.click();
+}
+
+// ===== LINK GENERATOR =====
+function generateLink() {
+  const url = document.getElementById('customerFileUrl').value.trim();
+  if (!url) { showToast('Ilagay muna ang customer file URL!', true); return; }
+  const link = url + '?src=' + encodeURIComponent(SCRIPT_URL);
+  const box = document.getElementById('generatedLink');
+  box.textContent = link; box.classList.add('show');
+  showToast('✅ Link generated!');
+}
+function copyLink() {
+  const box = document.getElementById('generatedLink');
+  if (!box.textContent) { showToast('Mag-generate muna!', true); return; }
+  navigator.clipboard.writeText(box.textContent).then(() => showToast('📋 Copied!'));
+}
+
+// ===== LOCK SCREEN =====
+function checkPassword() {
+  const input = document.getElementById('lockInput').value;
+  const savedPass = localStorage.getItem('adminPass') || '';
+
+  // If no password set yet — bypass
+  if (!savedPass) { unlockPanel(); return; }
+
+  if (input === savedPass) {
+    unlockPanel();
+  } else {
+    const inp = document.getElementById('lockInput');
+    inp.classList.add('error');
+    document.getElementById('lockError').style.display = 'block';
+    setTimeout(() => inp.classList.remove('error'), 400);
+    inp.value = '';
+  }
+}
+
+function unlockPanel() {
+  document.getElementById('lockScreen').classList.add('hidden');
+  loadData('config');
+  const savedKey = localStorage.getItem('imgbbKey');
+  if (savedKey) document.getElementById('imgbbApiKey').value = savedKey;
+}
+
+// ===== INIT =====
+window.onload = () => {
+  const savedPass = localStorage.getItem('adminPass') || '';
+  if (!savedPass) {
+    // No password set — unlock directly
+    unlockPanel();
+  }
+  // else — show lock screen (default state)
+};
+
+// Save password to localStorage when config is saved
+const _origSaveConfig = saveConfig;
+async function saveConfig() {
+  // Save password to localStorage
+  const newPass = document.getElementById('adminPassword').value.trim();
+  if (newPass) localStorage.setItem('adminPass', newPass);
+  await _origSaveConfig();
+}
+</script>
+</body>
+</html>
