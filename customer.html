@@ -67,7 +67,7 @@
   .form-group input { width: 100%; background: var(--dark); border: 2px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px 16px; font-size: 0.92rem; font-family: inherit; outline: none; transition: all 0.2s; }
   .form-group input:focus { border-color: var(--accent2); background: #231d30; }
   
-  .submit-btn { width: 100%; padding: 14px; background: var(--gold-glow); color: #231b07; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(201,168,76,0.2); }
+  .submit-btn { width: 100%; padding: 14px; background: var(--gold-glow); color: #231b07; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: all 0.25s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(201,168,76,0.2); }
   .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.4); }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .success-msg { background: #132e22; border: 2px solid #10b981; border-radius: 10px; padding: 14px 18px; font-size: 0.9rem; color: #a7f3d0; margin-top: 14px; display: none; text-align: center; }
@@ -223,7 +223,6 @@
       <div class="payment-name">Levi Ugaban Mariano</div>
     </div>
 
-    <!-- DIRECT MESSENGER REDIRECT VIA YOUR DEEP LINK -->
     <a href="https://m.me/118441451362301?ref=2560834" target="_blank" class="btn-modal-action btn-modal-messenger">💬 Ipadala ang Screenshot dito</a>
     <button class="btn-modal-action btn-modal-close" onclick="closePaymentModal()">Nakuha ko na / Isara</button>
   </div>
@@ -436,8 +435,16 @@ async function sendMessageText(text) {
   try {
     const activeProvider = siteConfig.aiProvider || localStorage.getItem('aiProvider') || 'openrouter';
     let rawKey = siteConfig.aiApiKey || localStorage.getItem('aiApiKey') || '';
-    if (rawKey && rawKey.trim() !== '') { try { rawKey = atob(rawKey); } catch(e){} }
-    else { rawKey = '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'; }
+    
+    // STRONGER DECODING LAYER
+    if (rawKey && rawKey.trim() !== '') {
+      try { rawKey = atob(rawKey.trim()); } catch(e){}
+    }
+    
+    // HARD VALIDATION: KUNG HINDI VALID OPENROUTER KEY, I-FORCE ANG WORKING KEY MO
+    if (!rawKey || typeof rawKey !== 'string' || !rawKey.trim().startsWith('sk-')) {
+      rawKey = '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';
+    }
 
     let reply = '';
     const targetModel = activeProvider === 'gemini' ? 'google/gemini-flash-1.5' : 'meta-llama/llama-3.1-8b-instruct:free';
