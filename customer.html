@@ -126,6 +126,9 @@
   .bot .msg-bubble { background: var(--card); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
   .user .msg-bubble { background: var(--accent-dark); color: #ffffff; border-bottom-right-radius: 4px; border: 1px solid var(--accent); }
 
+  .chat-link-btn { display: inline-block; background: rgba(201,168,76,0.15); border: 1.5px solid var(--accent2); color: var(--accent2); padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; text-decoration: none; margin-top: 8px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .chat-link-btn:hover { background: var(--gold-glow); color: #231b07; border-color: transparent; box-shadow: 0 4px 12px rgba(201,168,76,0.3); }
+
   .chat-img { max-width: 200px; border-radius: 10px; margin-top: 6px; display: block; border: 2px solid var(--border); cursor: pointer; }
 
   .typing-indicator { display: flex; gap: 4px; padding: 11px 15px; background: var(--card); border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; border: 1px solid var(--border); }
@@ -153,11 +156,10 @@
 
 <div id="loadingScreen">
   <div class="spinner"></div>
-  <p>Inihahanda ang kumikinang na storefront...</p>
+  <p>Inihahanda ang storefront...</p>
 </div>
 
 <div id="mainContent">
-  <!-- HERO -->
   <div class="hero">
     <p class="hero-eyebrow" id="brandEyebrow"></p>
     <h1 id="heroHeadline">Naglo-load...</h1>
@@ -165,7 +167,6 @@
     <div id="heroCta" class="hero-cta" onclick="toggleChat()">📩 Magtanong sa aming AI</div>
   </div>
 
-  <!-- PRICING -->
   <div class="section">
     <div class="section-title">💰 Mga Eksklusibong Package</div>
     <div class="pricing-grid">
@@ -184,22 +185,20 @@
     </div>
   </div>
 
-  <!-- LEAD FORM -->
   <div class="section" style="padding-top:0">
     <div class="section-title">📩 Ipadala ang iyong Detalye</div>
     <div class="lead-form">
       <div class="form-group"><label>Pangalan *</label><input type="text" id="leadName" placeholder="Iyong kumpletong pangalan"></div>
       <div class="form-group"><label>Messenger / Contact *</label><input type="text" id="leadContact" placeholder="Link ng iyong Messenger o Contact Number"></div>
       <div class="form-group"><label>Interesado sa Package (Optional)</label><input type="text" id="leadInterest" placeholder="Halimbawa: Bundle, VIP, o may itatanong lang"></div>
-      <button class="submit-btn" id="submitBtn" onclick="submitLead()">✉️ Ipadala ang Detalye</button>
-      <div class="success-msg" id="successMsg">✅ Natanggap na ang iyong detalye! Makikipag-ugnayan kami sa inyo sa lalong madaling panahon. 🙏</div>
+      <button class="submit-btn" id="submitBtn" onclick="submitLead()">✉️ Ipadala the Detalye</button>
+      <div class="success-msg" id="successMsg">✅ Detalye nakuha na! Makikipag-ugnayan kami sa inyo agad-agad. 🙏</div>
     </div>
   </div>
 
   <div class="footer" id="footerText"></div>
 </div>
 
-<!-- ===== MANUAL PAYMENT MODAL ===== -->
 <div id="paymentModal">
   <div class="modal-content">
     <div class="modal-header">💳 Manual Payment Gateway</div>
@@ -221,7 +220,6 @@
   </div>
 </div>
 
-<!-- ===== CHATBOT FAB & WINDOW ===== -->
 <button id="chatFab" onclick="toggleChat()">💬</button>
 
 <div id="chatWindow">
@@ -237,10 +235,10 @@
   <div class="chat-messages" id="chatMessages"></div>
 
   <div class="quick-chips" id="quickChips">
+    <span class="chip" onclick="sendChip(this)">💰 Funnelcraftph</span>
+    <span class="chip" onclick="sendChip(this)">🤖 AI Business Employee</span>
     <span class="chip" onclick="sendChip(this)">📷 Pakita sample images</span>
-    <span class="chip" onclick="sendChip(this)">💰 Magkano ang bundle?</span>
-    <span class="chip" onclick="sendChip(this)">❓ Ano ang mga kasamang services?</span>
-    <span class="chip" onclick="sendChip(this)">📞 Paano ang mode of payment?</span>
+    <span class="chip" onclick="sendChip(this)">❓ Ano ang mga kasama?</span>
   </div>
 
   <div class="chat-footer">
@@ -249,7 +247,6 @@
   </div>
 </div>
 
-<!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
 <div class="toast" id="toast"></div>
 
@@ -268,14 +265,22 @@ function showToast(msg) {
 }
 
 function handlePayment(type) {
-  const link = type === 'bundle' ? siteConfig.bundleLink : siteConfig.vipLink;
-  if (!link || link === '#' || link === '' || link.toLowerCase().includes('manual')) {
-    document.getElementById('paymentModal').classList.add('show');
-  } else {
-    window.open(link, '_blank');
-  }
+  document.getElementById('paymentModal').classList.add('show');
+}
+function handleManualPopup() {
+  document.getElementById('paymentModal').classList.add('show');
 }
 function closePaymentModal() { document.getElementById('paymentModal').classList.remove('show'); }
+
+document.addEventListener('click', function(e) {
+  if (e.target && (e.target.classList.contains('chat-link-btn') || e.target.classList.contains('chip'))) {
+    const text = e.target.textContent.toLowerCase();
+    if (text.includes('funnel') || text.includes('employee') || text.includes('business')) {
+      e.preventDefault();
+      handleManualPopup();
+    }
+  }
+});
 
 async function loadConfig() {
   if (!SCRIPT_URL) {
@@ -355,32 +360,32 @@ function initChat() {
       role: 'system',
       content: `Ikaw ay isang smart at modernong AI sales employee para sa "${siteConfig.brandName || 'aming negosyo'}".
 
-DITO NAKALAGAY ANG MASTER INFORMATION AT INSTRUCTIONS NG BUSINESS (KASAMA ANG SERVICES, FAQS, AT DETALYE):
-${siteConfig.botInstructions || 'Mag-alok ng tulong sa customers tungkol sa aming mga produkto at serbisyo.'}
+DITO NAKALAGAY ANG MASTER INFORMATION AT INSTRUCTIONS NG BUSINESS:
+${siteConfig.botInstructions || 'Mag-alok ng tulong sa customers tungkol sa aming mga produkto.'}
 
 MGA CURRENT PACKAGES:
-- ${siteConfig.bundleName || 'Bundle'}: ${siteConfig.bundlePrice || '₱1,997'}
-- ${siteConfig.vipName || 'VIP'}: ${siteConfig.vipPrice || '₱997'}
+- ${siteConfig.bundleName || 'Funnelcraftph Bundle'}: ${siteConfig.bundlePrice || '₱1,997'}
+- ${siteConfig.vipName || 'AI Business Employee VIP'}: ${siteConfig.vipPrice || '₱997'}
 
-MANUAL CHECKOUT ACCOUNTS (GCash / Maya):
+MANUAL CHECKOUT ACCOUNTS:
 - GCash Account: 09231893139 (Levi Ugaban Mariano)
 - Maya Account: 09461825985 (Levi Ugaban Mariano)
 
-MGA PANUNTUNAN SA PAGSAGOT:
-1. Gamitin ang direktang pamamaraan ("Modern Direct Response Language" o Taglish).
-2. Kung nagtanong tungkol sa services, faqs, o detalye, gamitin ang Master Information sa itaas para sumagot.
-3. Kapag nagtanong kung paano ang bayad o payment, ibigay ang GCash at Maya details nang direkta at malinaw.
-4. Kung naghahanap ng sample images o patunay, maglakip ng tag na [SHOW_IMAGES] sa dulo ng iyong sagot kung may naka-upload na assets.
-5. Kung hiningi ang link ng Messenger para sa personal contact, ibigay ito: ${siteConfig.messengerLink || 'N/A'}.
-6. Limitahan ang haba ng bawat sagot sa 3-4 na pangungusap lamang para madaling basahin.`
+MGA PANUNTUNAN:
+1. Kapag nagtanong tungkol sa Funnelcraftph o AI Business Employee, maglagay ka ng magandang button option sa dulo ng sagot mo na may format na katulad nito:
+<br><a class="chat-link-btn" href="#">Mag-avail ng Funnelcraftph</a> o kaya <a class="chat-link-btn" href="#">Mag-avail ng AI Business Employee</a>
+2. Sumagot gamit ang Modern Direct Response Taglish alignment rules.`
     }
   ];
-  addBotMessage(`Kamusta! 👋 Ako ang AI assistant ng **${siteConfig.brandName || 'aming negosyo'}**. May mga tanong ka ba tungkol sa aming mga serbisyo, pakete, o paano magsimula? Tanong ka lang! 😊`);
+  addBotMessage(`Kamusta! 👋 Ako ang AI assistant ng **${siteConfig.brandName || 'aming negosyo'}**. Interesado ka ba sa aming **Funnelcraftph** o **AI Business Employee** system? I-click ang chips sa ibaba o magtanong ka lang! 😊`);
 }
 
+// INAYOS NA REPLACEMENT CORE ENGINE FUNCTION PARA HINDI NA MAG-BLANKO ANG BOT
 function addBotMessage(text, imgs = []) {
   const msgs = document.getElementById('chatMessages');
   const div = document.createElement('div'); div.className = 'msg bot';
+  
+  // FIXED STYLING REGEX LOOP
   let content = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   let imgHtml = '';
   if (imgs.length) {
@@ -409,8 +414,8 @@ function showTyping() {
 function removeTyping() { const t = document.getElementById('typingMsg'); if (t) t.remove(); }
 function scrollChat() { const m = document.getElementById('chatMessages'); setTimeout(() => m.scrollTop = m.scrollHeight, 50); }
 function chatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-function sendChip(el) { const text = el.textContent.trim(); document.getElementById('quickChips').style.display = 'none'; sendMessageText(text); }
-function sendMessage() { const input = document.getElementById('chatInput'); const text = input.value.trim(); if (!text || isTyping) return; input.value = ''; document.getElementById('quickChips').style.display = 'none'; sendMessageText(text); }
+function sendChip(el) { const text = el.textContent.trim(); sendMessageText(text); }
+function sendMessage() { const input = document.getElementById('chatInput'); const text = input.value.trim(); if (!text || isTyping) return; input.value = ''; sendMessageText(text); }
 
 async function sendMessageText(text) {
   addUserMessage(text);
@@ -422,14 +427,8 @@ async function sendMessageText(text) {
   try {
     const activeProvider = siteConfig.aiProvider || localStorage.getItem('aiProvider') || 'openrouter';
     let rawKey = siteConfig.aiApiKey || localStorage.getItem('aiApiKey') || '';
-    
-    // SAFE FALLBACK & RE-DECODING LAYER
-    if (rawKey && rawKey.trim() !== '') {
-      try { rawKey = atob(rawKey); } catch(e){}
-    } else {
-      // Kung blangko ang nakuha mula sa dynamic sheets config, gamitin ang gumaganang key mo
-      rawKey = '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';
-    }
+    if (rawKey && rawKey.trim() !== '') { try { rawKey = atob(rawKey); } catch(e){} }
+    else { rawKey = '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'; }
 
     let reply = '';
     const targetModel = activeProvider === 'gemini' ? 'google/gemini-flash-1.5' : 'meta-llama/llama-3.1-8b-instruct:free';
