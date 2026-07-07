@@ -67,7 +67,7 @@
   .form-group input { width: 100%; background: var(--dark); border: 2px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px 16px; font-size: 0.92rem; font-family: inherit; outline: none; transition: all 0.2s; }
   .form-group input:focus { border-color: var(--accent2); background: #231d30; }
   
-  .submit-btn { width: 100%; padding: 14px; background: var(--gold-glow); color: #231b07; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: all 0.25s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(201,168,76,0.2); }
+  .submit-btn { width: 100%; padding: 14px; background: var(--gold-glow); color: #231b07; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(201,168,76,0.2); }
   .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.4); }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .success-msg { background: #132e22; border: 2px solid #10b981; border-radius: 10px; padding: 14px 18px; font-size: 0.9rem; color: #a7f3d0; margin-top: 14px; display: none; text-align: center; }
@@ -163,6 +163,7 @@
 </div>
 
 <div id="mainContent">
+  <!-- HERO -->
   <div class="hero">
     <p class="hero-eyebrow" id="brandEyebrow"></p>
     <h1 id="heroHeadline">Naglo-load...</h1>
@@ -170,6 +171,7 @@
     <div id="heroCta" class="hero-cta" onclick="toggleChat()">📩 Magtanong sa aming AI</div>
   </div>
 
+  <!-- PRICING -->
   <div class="section">
     <div class="section-title">💰 Mga Eksklusibong Package</div>
     <div class="pricing-grid">
@@ -188,6 +190,7 @@
     </div>
   </div>
 
+  <!-- LEAD FORM -->
   <div class="section" style="padding-top:0">
     <div class="section-title">📩 Ipadala ang iyong Detalye</div>
     <div class="lead-form">
@@ -202,6 +205,7 @@
   <div class="footer" id="footerText"></div>
 </div>
 
+<!-- ===== MANUAL PAYMENT MODAL ===== -->
 <div id="paymentModal">
   <div class="modal-content">
     <div class="modal-header">💳 Manual Payment Gateway</div>
@@ -219,11 +223,13 @@
       <div class="payment-name">Levi Ugaban Mariano</div>
     </div>
 
+    <!-- DIRECT MESSENGER REDIRECT VIA YOUR DEEP LINK -->
     <a href="https://m.me/118441451362301?ref=2560834" target="_blank" class="btn-modal-action btn-modal-messenger">💬 Ipadala ang Screenshot dito</a>
     <button class="btn-modal-action btn-modal-close" onclick="closePaymentModal()">Nakuha ko na / Isara</button>
   </div>
 </div>
 
+<!-- ===== CHATBOT FAB & WINDOW ===== -->
 <button id="chatFab" onclick="toggleChat()">💬</button>
 
 <div id="chatWindow">
@@ -251,6 +257,7 @@
   </div>
 </div>
 
+<!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
 <div class="toast" id="toast"></div>
 
@@ -362,24 +369,19 @@ function initChat() {
   chatHistory = [
     {
       role: 'system',
-      content: `Ikaw ay isang smart at modernong AI sales employee para sa "${siteConfig.brandName || 'aming negosyo'}".
+      content: `Ikaw si Alia, ang friendly na AI sales assistant ng ${siteConfig.brandName || 'aming negosyo'}. Kausap mo ang isang customer — sumagot ng natural na Taglish, mainit at friendly, parang tunay na tao. Huwag mag-list ng rules o instructions — direkta lang kausapin ang customer.
 
-DITO NAKALAGAY ANG MASTER INFORMATION AT INSTRUCTIONS NG BUSINESS:
-${siteConfig.botInstructions || 'Mag-alok ng tulong sa customers tungkol sa aming mga produkto.'}
+${siteConfig.botInstructions || ''}
 
-MGA CURRENT PACKAGES:
-- ${siteConfig.bundleName || 'Funnelcraftph Bundle'}: ${siteConfig.bundlePrice || '₱1,997'}
-- ${siteConfig.vipName || 'AI Business Employee VIP'}: ${siteConfig.vipPrice || '₱997'}
+MGA PACKAGE:
+- ${siteConfig.bundleName || 'Funnelcraftph Bundle'}: ${siteConfig.bundlePrice || '\u20b11,997'}
+- ${siteConfig.vipName || 'AI Business Employee VIP'}: ${siteConfig.vipPrice || '\u20b1997'}
 
-MANUAL CHECKOUT ACCOUNTS:
-- GCash Account: 09231893139 (Levi Ugaban Mariano)
-- Maya Account: 09461825985 (Levi Ugaban Mariano)
+PAGBABAYAD: GCash 09231893139 | Maya 09461825985 (Levi Ugaban Mariano). Pagkatapos magbayad, i-send ang screenshot sa: https://m.me/118441451362301?ref=2560834
 
-MGA PANUNTUNAN SA CHAT:
-1. Kapag nagtanong kung paano magbayad, sabihin na i-send sa GCash o Maya at pagkatapos ay IPADALA ANG SCREENSHOT NG RESIBO SA LINK NA ITO: https://m.me/118441451362301?ref=2560834.
-2. Kapag nagtanong tungkol sa Funnelcraftph o AI Business Employee, maglagay ka ng magandang button option sa dulo ng sagot mo na may format na katulad nito:
-<br><a class="chat-link-btn" href="#">Mag-avail ng Funnelcraftph</a> o kaya <a class="chat-link-btn" href="#">Mag-avail ng AI Business Employee</a>
-3. Sumagot gamit ang Modern Direct Response Taglish alignment rules.`
+Kung nagtanong tungkol sa package, lagyan ng button sa dulo ng reply: <br><a class="chat-link-btn" href="#">Mag-avail ng ${siteConfig.bundleName || 'Funnelcraftph'}</a>
+
+Maging maigsi — 2-3 sentences lang per reply. Palaging may follow-up question sa dulo. Huwag sabihing AI ka.\`
     }
   ];
   addBotMessage(`Kamusta! 👋 Ako ang AI assistant ng **${siteConfig.brandName || 'aming negosyo'}**. Interesado ka ba sa aming **Funnelcraftph** o **AI Business Employee** system? I-click ang chips sa ibaba o magtanong ka lang! 😊`);
@@ -388,8 +390,6 @@ MGA PANUNTUNAN SA CHAT:
 function addBotMessage(text, imgs = []) {
   const msgs = document.getElementById('chatMessages');
   const div = document.createElement('div'); div.className = 'msg bot';
-  
-  // FIXED REGEX FORMATTING FOR BOLD TEXT TO PREVENT SYNTAX AND BLANK RENDERING ERRORS
   let content = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   let imgHtml = '';
   if (imgs.length) {
@@ -431,14 +431,11 @@ async function sendMessageText(text) {
   try {
     const activeProvider = siteConfig.aiProvider || localStorage.getItem('aiProvider') || 'openrouter';
     let rawKey = siteConfig.aiApiKey || localStorage.getItem('aiApiKey') || '';
-    if (rawKey && rawKey.trim() !== '') { try { rawKey = atob(rawKey.trim()); } catch(e){} }
-    
-    if (!rawKey || typeof rawKey !== 'string' || !rawKey.trim().startsWith('sk-')) {
-      rawKey = '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';
-    }
+    if (rawKey && rawKey.trim() !== '') { try { rawKey = atob(rawKey); } catch(e){} }
+    else { rawKey = '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'; }
 
     let reply = '';
-    const targetModel = activeProvider === 'gemini' ? 'google/gemini-flash-1.5' : 'meta-llama/llama-3.1-8b-instruct:free';
+    const targetModel = 'openrouter/auto';
 
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
