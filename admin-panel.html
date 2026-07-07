@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet\">\n<style>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
   :root {
     --bg: #f5f0e8; --bg2: #ede7d9; --card: #faf7f2; --border: #d4c5a9;
     --purple: #7c6b9e; --purple-light: #9d8ec0; --purple-dark: #5a4d78;
@@ -76,14 +77,14 @@
 </head>
 <body>
 
+<!-- SECURELY HIDDEN SCRIPT LINK -->
+<input type="hidden" id="scriptUrlInput" value="https://script.google.com/macros/s/AKfycby6bRNE0od7l9u7ANfgCx-xWQU21ToKGgj_7JdIVQUXPqRq5MSu7n1bzdiDq8Kez4Q/exec">
+
+<!-- LOCK SCREEN -->
 <div id="lockScreen">
   <div class="lock-card">
     <h2>🔒 Security Access</h2>
-    <div class="form-group" style="text-align:left;">
-      <label>Web App SCRIPT_URL (Required)</label>
-      <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/.../exec">
-    </div>
-    <div class="form-group" style="text-align:left;">
+    <div class="form-group" style="text-align:left; margin-top: 15px;">
       <label>Admin Password</label>
       <input type="password" id="adminPasswordInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') unlockPanel()">
     </div>
@@ -91,6 +92,7 @@
   </div>
 </div>
 
+<!-- MAIN CONTAINER -->
 <div class="container" id="mainContainer">
   <div class="header">
     <h1 id="panelTitle">Digitera Levi</h1>
@@ -98,6 +100,7 @@
   </div>
 
   <div class="main-grid">
+    <!-- BRANDING -->
     <div>
       <div class="section-title">✨ Branding & Base Settings</div>
       <div class="input-row">
@@ -120,6 +123,7 @@
       </div>
     </div>
 
+    <!-- PACKAGES -->
     <div>
       <div class="section-title">💰 Product Packages Setup</div>
       <div style="background:var(--bg2); padding:16px; border-radius:16px; margin-bottom:16px;">
@@ -159,6 +163,7 @@
       </div>
     </div>
 
+    <!-- AI ENGINE -->
     <div>
       <div class="section-title">🤖 AI Assistant Engine</div>
       <div class="input-row">
@@ -181,18 +186,20 @@
       </div>
     </div>
 
+    <!-- ASSETS -->
     <div>
       <div class="section-title">🖼️ Gallery & Product Images Asset Manager</div>
       <div style="background:var(--bg2); padding:20px; border-radius:16px; border:2px dashed var(--border);">
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;">
           <input type="file" id="imageFile" accept="image/*" style="display:none;" onchange="uploadImage()">
           <button class="btn btn-purple" onclick="document.getElementById('imageFile').click()">➕ Magdagdag ng Larawan</button>
-          <p style="font-size:0.75rem; color:var(--text2);">Tatanggapin: JPG, PNG, WEBP. Awtomatikong mase-save sa cloud system gallery list.</p>
+          <p style="font-size:0.75rem; color:var(--text2);">Tatanggapin: JPG, PNG, WEBP.</p>
         </div>
         <div class="img-grid" id="imgGrid"></div>
       </div>
     </div>
 
+    <!-- SECURITY PASSWORD -->
     <div>
       <div class="section-title">🔒 System Security</div>
       <div class="form-group">
@@ -211,7 +218,7 @@
 <div class="toast" id="toast">Configuration Updated Successfully!</div>
 
 <script>
-let SCRIPT_URL = '';
+const SCRIPT_URL = document.getElementById('scriptUrlInput').value;
 
 function showToast(msg) {
   const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
@@ -230,19 +237,13 @@ function jsonp(url) {
 }
 
 async function unlockPanel() {
-  const sUrl = document.getElementById('scriptUrlInput').value.trim();
   const pass = document.getElementById('adminPasswordInput').value.trim();
-  if (!sUrl) { alert('Paki-input ang Google Web App SCRIPT_URL!'); return; }
   
-  SCRIPT_URL = sUrl;
-  localStorage.setItem('adminScriptUrl', SCRIPT_URL);
-
   try {
     showToast('Checking secure connection...');
     const data = await jsonp(SCRIPT_URL + '?action=getConfig');
     const cfg = data.config || {};
     
-    // Check password if saved on sheets or localStorage
     const storedPass = localStorage.getItem('adminPass') || '';
     if (storedPass && pass !== storedPass) { alert('Maling Password! Subukan ulit.'); return; }
 
@@ -252,7 +253,7 @@ async function unlockPanel() {
     applyConfig(cfg);
     loadImages();
   } catch(e) {
-    alert('Hindi kumonekta sa Google Sheets Web App. Pakisuri kung tama ang URL mo.');
+    alert('Hindi kumonekta sa Google Sheets Web App system. Pakisuri ang setup.');
     console.error(e);
   }
 }
@@ -269,8 +270,6 @@ function applyConfig(cfg) {
   document.getElementById('vipName').value = cfg.vipName || '';
   document.getElementById('vipPrice').value = cfg.vipPrice || '';
   document.getElementById('vipLink').value = cfg.vipLink || '';
-  
-  // Eto lang ang naiwan na textarea natin ngayon!
   document.getElementById('botInstructions').value = cfg.botInstructions || '';
 
   const savedKey = localStorage.getItem('aiApiKey');
@@ -305,7 +304,7 @@ async function saveConfig() {
     await jsonp(SCRIPT_URL + '?action=saveConfigField&key=aiProvider&value=' + encodeURIComponent(provider));
   }
 
-  showToast('🎉 Kumpleto na! Naka-save na lahat ng binago mo.');
+  showToast('🎉 Naka-save na lahat ng binago mo!');
 }
 
 async function loadImages() {
@@ -341,11 +340,6 @@ async function deleteImage(id) {
   showToast('Deleted.');
   loadImages();
 }
-
-window.onload = () => {
-  const savedUrl = localStorage.getItem('adminScriptUrl');
-  if (savedUrl) document.getElementById('scriptUrlInput').value = savedUrl;
-};
 </script>
 </body>
 </html>
