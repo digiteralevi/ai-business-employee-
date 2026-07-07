@@ -7,224 +7,209 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --accent: #9d8ec0;       /* Soft Lilac Purple */
-    --accent-dark: #5a4d78;  /* Deep Lilac shadow */
-    --accent2: #c9a84c;      /* Metallic Gold */
-    --gold-glow: linear-gradient(135deg, #f0c860 0%, #c9a84c 40%, #e8b84b 60%, #a07830 100%);
-    --dark: #120f1a;         /* Deep Lilac-tinted Dark Background */
-    --card: #1e1929;         /* Premium Dark Lilac Card */
-    --border: #423754;       /* Subtle Border Tint */
-    --beige: #f5f0e8;        /* Luxury Beige Text Highlight */
-    --text: #ede7d9;         /* Soft Cream text */
-    --textdim: #bdae96;      /* Muted Beige/Cream text */
-    --muted: #7c6b9e;
+    --accent: #6366f1; --accent2: #10b981;
+    --dark: #0f172a; --card: #1e293b; --border: #334155;
+    --muted: #64748b; --text: #e2e8f0; --textdim: #94a3b8;
   }
   body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; }
 
   /* LOADER */
   #loadingScreen { position: fixed; inset: 0; background: var(--dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 16px; }
-  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent2); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  #loadingScreen p { color: var(--textdim); font-size: 0.9rem; }
+  #loadingScreen p { color: var(--muted); font-size: 0.9rem; }
   #mainContent { display: none; }
 
   /* HERO */
-  .hero { background: linear-gradient(135deg, #2b1f45 0%, #120f1a 70%); padding: 90px 20px 80px; text-align: center; position: relative; overflow: hidden; border-bottom: 2px solid #c9a84c33; }
-  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%); }
-  .hero-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; color: var(--accent2); text-transform: uppercase; margin-bottom: 14px; text-shadow: 0 0 10px rgba(201,168,76,0.3); }
-  .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.2; color: var(--beige); margin-bottom: 14px; position: relative; }
-  .hero p { font-size: 1.05rem; color: var(--textdim); max-width: 540px; margin: 0 auto 32px; line-height: 1.7; position: relative; }
-  
-  .hero-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--gold-glow); color: #231b07; padding: 14px 32px; border-radius: 30px; font-size: 0.95rem; font-weight: 800; text-decoration: none; position: relative; transition: all 0.25s ease; box-shadow: 0 4px 20px rgba(201,168,76,0.35); text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; }
-  .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 6px 28px rgba(201,168,76,0.6); opacity: 0.95; }
+  .hero { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 60%); padding: 64px 20px 56px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.18) 0%, transparent 70%); }
+  .hero-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; line-height: 1.2; color: #f8fafc; margin-bottom: 14px; position: relative; }
+  .hero p { font-size: 1rem; color: var(--textdim); max-width: 520px; margin: 0 auto 28px; line-height: 1.7; position: relative; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; padding: 13px 26px; border-radius: 10px; font-size: 0.92rem; font-weight: 700; text-decoration: none; position: relative; transition: opacity 0.2s, transform 0.15s; }
+  .hero-cta:hover { opacity: 0.9; transform: translateY(-2px); }
 
   /* SECTIONS */
-  .section { max-width: 820px; margin: 0 auto; padding: 56px 20px; }
-  .section-title { font-size: 1.25rem; font-weight: 800; color: var(--beige); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--accent2); display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .section { max-width: 820px; margin: 0 auto; padding: 48px 20px; }
+  .section-title { font-size: 1.2rem; font-weight: 800; color: #f8fafc; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 10px; }
+
+  .services-text { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; font-size: 0.92rem; line-height: 1.85; color: var(--textdim); white-space: pre-wrap; }
 
   /* PRICING */
-  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media(max-width:560px){ .pricing-grid { grid-template-columns: 1fr; } }
-  .price-card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 32px 24px; text-align: center; position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
-  .price-card.featured { border-color: var(--accent2); box-shadow: 0 0 0 1px var(--accent2), 0 12px 40px rgba(201,168,76,0.18); background: linear-gradient(180deg, var(--card) 0%, #251e33 100%); }
-  
-  .price-badge { display: inline-block; margin-bottom: 12px; background: var(--accent-dark); color: var(--text); font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; border: 1px solid var(--accent); }
-  .price-badge.green { background: var(--gold-glow); color: #231b07; border: none; font-weight: 800; box-shadow: 0 2px 10px rgba(201,168,76,0.25); }
-  
-  .price-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--beige); margin-bottom: 8px; }
-  .price-card .price { font-size: 2.1rem; font-weight: 900; color: var(--accent); margin-bottom: 20px; text-shadow: 0 0 10px rgba(157,142,192,0.2); }
-  .price-card.featured .price { color: var(--accent2); text-shadow: 0 0 15px rgba(201,168,76,0.3); }
-  
-  .price-btn { display: block; width: 100%; padding: 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; text-decoration: none; text-align: center; transition: all 0.2s ease; cursor: pointer; border: none; text-transform: uppercase; letter-spacing: 0.5px; }
-  .price-btn:hover { transform: translateY(-2px); opacity: 0.95; }
-  .btn-indigo { background: linear-gradient(135deg, #7c6b9e, #5a4d78); color: #fff; box-shadow: 0 4px 14px rgba(90,77,120,0.4); border: 1px solid var(--accent); }
-  .btn-green { background: var(--gold-glow); color: #231b07; box-shadow: 0 4px 16px rgba(201,168,76,0.3); }
+  .price-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; text-align: center; }
+  .price-card.featured { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(99,102,241,0.15); }
+  .price-badge { display: inline-block; margin-bottom: 10px; background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; }
+  .price-badge.green { background: var(--accent2); }
+  .price-card h3 { font-size: 1.05rem; font-weight: 800; color: #f8fafc; margin-bottom: 8px; }
+  .price-card .price { font-size: 1.9rem; font-weight: 900; color: var(--accent); margin-bottom: 18px; }
+  .price-card.featured .price { color: var(--accent2); }
+  .price-btn { display: block; padding: 11px; border-radius: 8px; font-size: 0.88rem; font-weight: 700; text-decoration: none; text-align: center; transition: opacity 0.2s, transform 0.15s; }
+  .price-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-indigo { background: var(--accent); color: #fff; } .btn-green { background: var(--accent2); color: #fff; }
 
   /* FORM */
-  .lead-form { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--textdim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .form-group input { width: 100%; background: var(--dark); border: 2px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px 16px; font-size: 0.92rem; font-family: inherit; outline: none; transition: all 0.2s; }
-  .form-group input:focus { border-color: var(--accent2); background: #231d30; }
-  
-  .submit-btn { width: 100%; padding: 14px; background: var(--gold-glow); color: #231b07; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: all 0.25s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(201,168,76,0.2); }
-  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.4); }
-  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .success-msg { background: #132e22; border: 2px solid #10b981; border-radius: 10px; padding: 14px 18px; font-size: 0.9rem; color: #a7f3d0; margin-top: 14px; display: none; text-align: center; }
+  .lead-form { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 0.8rem; color: var(--textdim); margin-bottom: 6px; }
+  .form-group input { width: 100%; background: var(--dark); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 10px 14px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus { border-color: var(--accent); }
+  .submit-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+  .submit-btn:hover { opacity: 0.88; } .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .success-msg { background: #065f46; border: 1px solid var(--accent2); border-radius: 10px; padding: 14px 18px; font-size: 0.88rem; color: #6ee7b7; margin-top: 12px; display: none; }
 
-  .footer { text-align: center; padding: 32px 20px; font-size: 0.8rem; color: var(--muted); border-top: 2px solid var(--border); margin-top: 56px; background: #0c0a12; }
+  /* FAQs */
+  .faq-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .faq-q { padding: 15px 20px; font-weight: 600; font-size: 0.88rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #f1f5f9; }
+  .faq-q:hover { background: #1a2438; }
+  .faq-q .arrow { transition: transform 0.2s; color: var(--accent); font-size: 0.75rem; }
+  .faq-q.open .arrow { transform: rotate(180deg); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; font-size: 0.86rem; color: var(--textdim); line-height: 1.75; padding: 0 20px; }
+  .faq-a.open { max-height: 400px; padding: 0 20px 14px; }
 
-  /* ===== PAYMENT MODAL ===== */
-  #paymentModal { position: fixed; inset: 0; background: rgba(10, 8, 15, 0.9); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; backdrop-filter: blur(4px); }
-  #paymentModal.show { display: flex; }
-  .modal-content { background: var(--card); border: 2px solid var(--accent2); border-radius: 20px; padding: 28px; max-width: 440px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.5); text-align: center; }
-  .modal-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; color: var(--beige); text-transform: uppercase; letter-spacing: 0.5px; }
-  .payment-option { background: var(--dark); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: left; }
-  .payment-label { font-size: 0.75rem; font-weight: 800; color: var(--accent2); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
-  .payment-details { font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
-  .payment-name { font-size: 0.82rem; color: var(--textdim); margin-top: 2px; }
-  
-  .btn-modal-action { display: block; width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; font-size: 0.88rem; margin-top: 10px; border: none; }
-  .btn-modal-messenger { background: var(--gold-glow); color: #231b07; box-shadow: 0 4px 14px rgba(201,168,76,0.3); }
-  .btn-modal-close { background: var(--bg); color: var(--textdim); background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); }
+  .footer { text-align: center; padding: 28px 20px; font-size: 0.78rem; color: var(--muted); border-top: 1px solid var(--border); margin-top: 40px; }
 
-  /* ===== CHATBOT FAB & WINDOW ===== */
+  /* ===== CHATBOT ===== */
   #chatFab {
-    position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%;
-    background: var(--gold-glow); color: #231b07; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
-    box-shadow: 0 6px 24px rgba(201,168,76,0.4); transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+    position: fixed; bottom: 24px; right: 24px;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+    color: #fff; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; box-shadow: 0 4px 20px rgba(99,102,241,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 1000;
   }
-  #chatFab:hover { transform: scale(1.1) translateY(-2px); box-shadow: 0 8px 32px rgba(201,168,76,0.6); }
+  #chatFab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(99,102,241,0.7); }
+  #chatFab .notif { position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; background: #ef4444; border-radius: 50%; border: 2px solid var(--dark); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.2)} }
 
   #chatWindow {
-    position: fixed; bottom: 96px; right: 24px; width: 365px; max-width: calc(100vw - 32px); height: 530px; max-height: calc(100vh - 120px);
-    background: var(--card); border: 2px solid var(--border); border-radius: 20px; box-shadow: 0 12px 48px rgba(0,0,0,0.4);
-    display: flex; flex-direction: column; z-index: 999; transform: scale(0.9) translateY(20px); opacity: 0; pointer-events: none;
-    transition: transform 0.25s ease, opacity 0.25s ease; transform-origin: bottom right; overflow: hidden;
+    position: fixed; bottom: 92px; right: 24px;
+    width: 360px; max-width: calc(100vw - 32px);
+    height: 520px; max-height: calc(100vh - 120px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
+    z-index: 999; transform: scale(0.9) translateY(20px);
+    opacity: 0; pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    transform-origin: bottom right;
   }
-  #chatWindow.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; border-color: var(--accent); }
+  #chatWindow.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
 
   .chat-header {
-    padding: 16px; background: linear-gradient(135deg, #372a54, #1d162e);
-    display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border);
+    padding: 14px 16px; background: linear-gradient(135deg, #312e81, #1e1b4b);
+    border-radius: 16px 16px 0 0; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
   }
-  .chat-avatar { width: 38px; height: 38px; background: var(--gold-glow); color: #231b07; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; box-shadow: 0 0 10px rgba(201,168,76,0.3); }
-  .chat-header-info h4 { font-size: 0.92rem; font-weight: 700; color: var(--beige); }
-  .chat-header-info p { font-size: 0.72rem; color: var(--accent); }
-  .chat-close { margin-left: auto; background: none; border: none; color: var(--textdim); font-size: 1.1rem; cursor: pointer; padding: 4px; border-radius: 6px; }
-  .chat-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .chat-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  .chat-header-info h4 { font-size: 0.9rem; font-weight: 700; color: #f8fafc; }
+  .chat-header-info p { font-size: 0.72rem; color: #a5b4fc; }
+  .chat-close { margin-left: auto; background: none; border: none; color: #64748b; font-size: 1.1rem; cursor: pointer; padding: 4px; border-radius: 6px; }
+  .chat-close:hover { background: #334155; color: #fff; }
 
-  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; background: #161221; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
   .chat-messages::-webkit-scrollbar { width: 4px; }
-  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
 
   .msg { display: flex; gap: 8px; align-items: flex-end; max-width: 90%; }
   .msg.user { align-self: flex-end; flex-direction: row-reverse; }
   .msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
-  .bot-avatar { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; }
-  .user-avatar { background: var(--gold-glow); color: #231b07; }
+  .bot-avatar { background: linear-gradient(135deg, var(--accent), #818cf8); }
+  .user-avatar { background: var(--accent2); }
 
-  .msg-bubble { padding: 11px 15px; border-radius: 16px; font-size: 0.88rem; line-height: 1.6; max-width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-  .bot .msg-bubble { background: var(--card); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
-  .user .msg-bubble { background: var(--accent-dark); color: #ffffff; border-bottom-right-radius: 4px; border: 1px solid var(--accent); }
+  .msg-bubble { padding: 10px 14px; border-radius: 14px; font-size: 0.85rem; line-height: 1.6; max-width: 100%; }
+  .bot .msg-bubble { background: #0f172a; color: var(--textdim); border-bottom-left-radius: 4px; }
+  .user .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
 
-  .chat-link-btn { display: inline-block; background: rgba(201,168,76,0.15); border: 1.5px solid var(--accent2); color: var(--accent2); padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; text-decoration: none; margin-top: 8px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .chat-link-btn:hover { background: var(--gold-glow); color: #231b07; border-color: transparent; box-shadow: 0 4px 12px rgba(201,168,76,0.3); }
+  /* Image inside chat */
+  .chat-img { max-width: 200px; border-radius: 10px; margin-top: 6px; display: block; border: 1px solid var(--border); cursor: pointer; transition: opacity 0.2s; }
+  .chat-img:hover { opacity: 0.85; }
 
-  .chat-img { max-width: 200px; border-radius: 10px; margin-top: 6px; display: block; border: 2px solid var(--border); cursor: pointer; }
-
-  .typing-indicator { display: flex; gap: 4px; padding: 11px 15px; background: var(--card); border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; border: 1px solid var(--border); }
-  .typing-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: typingBounce 1.2s infinite; }
+  .typing-indicator { display: flex; gap: 4px; padding: 10px 14px; background: #0f172a; border-radius: 14px; border-bottom-left-radius: 4px; width: fit-content; }
+  .typing-dot { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; animation: typingBounce 1.2s infinite; }
   .typing-dot:nth-child(2) { animation-delay: 0.2s; }
   .typing-dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes typingBounce { 0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)} }
 
-  .chat-footer { padding: 12px; border-top: 2px solid var(--border); display: flex; gap: 8px; background: var(--card); }
-  #chatInput { flex: 1; background: var(--dark); border: 2px solid var(--border); border-radius: 10px; color: var(--text); padding: 10px 14px; font-size: 0.88rem; font-family: inherit; outline: none; resize: none; transition: border-color 0.2s; }
+  .chat-footer { padding: 10px 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  #chatInput { flex: 1; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 9px 14px; font-size: 0.86rem; font-family: inherit; outline: none; resize: none; transition: border-color 0.2s; }
   #chatInput:focus { border-color: var(--accent); }
-  
-  #chatSend { background: var(--gold-glow); color: #231b07; border: none; border-radius: 10px; padding: 10px 16px; font-size: 0.9rem; cursor: pointer; font-weight: 800; transition: opacity 0.2s; }
+  #chatSend { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 9px 14px; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; }
+  #chatSend:hover { opacity: 0.85; }
   #chatSend:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .quick-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 12px; background: #161221; }
-  .chip { background: var(--card); border: 1px solid var(--border); color: var(--textdim); font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
-  .chip:hover { background: var(--gold-glow); border-color: transparent; color: #231b07; font-weight: 700; }
+  .quick-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 10px; }
+  .chip { background: #1a1f35; border: 1px solid var(--border); color: #a5b4fc; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .chip:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-  #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 9999; cursor: zoom-out; }
-  #lightbox.show { display: flex; } #lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; border: 2px solid var(--accent2); }
+  /* Image lightbox */
+  #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 9999; cursor: zoom-out; }
+  #lightbox.show { display: flex; }
+  #lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--accent2); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 0.86rem; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 9998; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 </style>
 </head>
 <body>
 
 <div id="loadingScreen">
   <div class="spinner"></div>
-  <p>Inihahanda ang storefront...</p>
+  <p>Naglo-load...</p>
 </div>
 
 <div id="mainContent">
+  <!-- HERO -->
   <div class="hero">
     <p class="hero-eyebrow" id="brandEyebrow"></p>
-    <h1 id="heroHeadline">Naglo-load...</h1>
-    <p id="heroSub"></p>
-    <div id="heroCta" class="hero-cta" onclick="toggleChat()">📩 Magtanong sa aming AI</div>
+    <h1 id="heroHeadline">Kumita Online. Totoo.</h1>
+    <p id="heroSub">Ang tamang sistema para sa iyong online business.</p>
+    <a href="#" id="heroCta" class="hero-cta">📩 Makipag-usap</a>
   </div>
 
-  <div class="section">
-    <div class="section-title">💰 Mga Eksklusibong Package</div>
+  <!-- PRICING -->
+  <div class="section" style="padding-top:48px">
+    <div class="section-title">💰 Mga Package</div>
     <div class="pricing-grid">
       <div class="price-card">
         <div class="price-badge">BUNDLE</div>
         <h3 id="bundleCardName">Bundle Package</h3>
         <div class="price" id="bundleCardPrice">₱1,997</div>
-        <button id="bundlePayBtn" class="price-btn btn-indigo" onclick="handlePayment('bundle')">Mag-avail →</button>
+        <a href="#" id="bundlePayBtn" class="price-btn btn-indigo" target="_blank">Mag-avail →</a>
       </div>
       <div class="price-card featured">
-        <div class="price-badge green">VIP ACCESS</div>
+        <div class="price-badge green">VIP</div>
         <h3 id="vipCardName">VIP Package</h3>
         <div class="price" id="vipCardPrice">₱997</div>
-        <button id="vipPayBtn" class="price-btn btn-green" onclick="handlePayment('vip')">Mag-avail →</button>
+        <a href="#" id="vipPayBtn" class="price-btn btn-green" target="_blank">Mag-avail →</a>
       </div>
     </div>
   </div>
 
+  <!-- LEAD FORM -->
   <div class="section" style="padding-top:0">
-    <div class="section-title">📩 Ipadala ang iyong Detalye</div>
+    <div class="section-title">📩 Makipag-ugnayan</div>
     <div class="lead-form">
-      <div class="form-group"><label>Pangalan *</label><input type="text" id="leadName" placeholder="Iyong kumpletong pangalan"></div>
-      <div class="form-group"><label>Messenger / Contact *</label><input type="text" id="leadContact" placeholder="Link ng iyong Messenger o Contact Number"></div>
-      <div class="form-group"><label>Interesado sa Package (Optional)</label><input type="text" id="leadInterest" placeholder="Halimbawa: Bundle, VIP, o may itatanong lang"></div>
-      <button class="submit-btn" id="submitBtn" onclick="submitLead()">✉️ Ipadala ang Detalye</button>
-      <div class="success-msg" id="successMsg">✅ Detalye nakuha na! Makikipag-ugnayan kami sa inyo agad-agad. 🙏</div>
+      <div class="form-group"><label>Pangalan *</label><input type="text" id="leadName" placeholder="Iyong pangalan"></div>
+      <div class="form-group"><label>Messenger / Contact *</label><input type="text" id="leadContact" placeholder="https://m.me/... o 09XXXXXXXXX"></div>
+      <div class="form-group"><label>Interested sa (optional)</label><input type="text" id="leadInterest" placeholder="e.g. Bundle, VIP, tanong lang"></div>
+      <button class="submit-btn" id="submitBtn" onclick="submitLead()">✉️ Ipadala</button>
+      <div class="success-msg" id="successMsg">✅ Natanggap na! Makikipag-ugnayan kami sa inyo sa lalong madaling panahon. 🙏</div>
     </div>
   </div>
 
   <div class="footer" id="footerText"></div>
 </div>
 
-<div id="paymentModal">
-  <div class="modal-content">
-    <div class="modal-header">💳 Manual Payment Gateway</div>
-    <p style="font-size:0.85rem; color:var(--textdim); margin-bottom:18px;">I-send ang bayad sa alinman sa mga accounts sa ibaba at <strong>i-click ang button sa ibaba para direktang magpadala ng resibo sa aking Messenger</strong> para sa activation. 🙏</p>
-    
-    <div class="payment-option">
-      <div class="payment-label">GCash Account</div>
-      <div class="payment-details">09231893139</div>
-      <div class="payment-name">Levi Ugaban Mariano</div>
-    </div>
-
-    <div class="payment-option">
-      <div class="payment-label">Maya Account</div>
-      <div class="payment-details">09461825985</div>
-      <div class="payment-name">Levi Ugaban Mariano</div>
-    </div>
-
-    <a href="https://m.me/118441451362301?ref=2560834" target="_blank" class="btn-modal-action btn-modal-messenger">💬 Ipadala ang Screenshot dito</a>
-    <button class="btn-modal-action btn-modal-close" onclick="closePaymentModal()">Nakuha ko na / Isara</button>
-  </div>
-</div>
-
-<button id="chatFab" onclick="toggleChat()">💬</button>
+<!-- ===== CHATBOT ===== -->
+<button id="chatFab" onclick="toggleChat()" title="Makipag-chat sa aming AI">
+  💬
+  <div class="notif"></div>
+</button>
 
 <div id="chatWindow">
   <div class="chat-header">
@@ -239,10 +224,10 @@
   <div class="chat-messages" id="chatMessages"></div>
 
   <div class="quick-chips" id="quickChips">
-    <span class="chip" onclick="sendChip(this)">💰 Funnelcraftph</span>
-    <span class="chip" onclick="sendChip(this)">🤖 AI Business Employee</span>
     <span class="chip" onclick="sendChip(this)">📷 Pakita sample images</span>
-    <span class="chip" onclick="sendChip(this)">❓ Ano ang mga kasama?</span>
+    <span class="chip" onclick="sendChip(this)">💰 Magkano ang bundle?</span>
+    <span class="chip" onclick="sendChip(this)">❓ Ano ang kasama?</span>
+    <span class="chip" onclick="sendChip(this)">📞 Makipag-usap sa tao</span>
   </div>
 
   <div class="chat-footer">
@@ -251,7 +236,11 @@
   </div>
 </div>
 
-<div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="Product Image">
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -263,32 +252,16 @@ let chatHistory = [];
 let chatOpen = false;
 let isTyping = false;
 
+// ===== TOAST =====
 function showToast(msg) {
   const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-function handlePayment(type) {
-  document.getElementById('paymentModal').classList.add('show');
-}
-function handleManualPopup() {
-  document.getElementById('paymentModal').classList.add('show');
-}
-function closePaymentModal() { document.getElementById('paymentModal').classList.remove('show'); }
-
-document.addEventListener('click', function(e) {
-  if (e.target && (e.target.classList.contains('chat-link-btn') || e.target.classList.contains('chip'))) {
-    const text = e.target.textContent.toLowerCase();
-    if (text.includes('funnel') || text.includes('employee') || text.includes('business')) {
-      e.preventDefault();
-      handleManualPopup();
-    }
-  }
-});
-
+// ===== LOAD CONFIG + IMAGES =====
 async function loadConfig() {
   if (!SCRIPT_URL) {
-    document.getElementById('loadingScreen').innerHTML = '<p style="color:#ef4444;padding:40px;text-align:center;">⚠️ Invalid token. Please reload via your secure integration link.</p>';
+    document.getElementById('loadingScreen').innerHTML = '<p style="color:#ef4444;padding:40px;text-align:center;">⚠️ Invalid link. Makipag-ugnayan sa admin.</p>';
     return;
   }
   try {
@@ -306,9 +279,10 @@ async function loadConfig() {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
 
+    // Init chat after config loaded
     initChat();
   } catch (err) {
-    document.getElementById('loadingScreen').innerHTML = '<p style="color:#ef4444;padding:40px;text-align:center;">❌ Error loading resources. Subukan ulit mamaya.</p>';
+    document.getElementById('loadingScreen').innerHTML = '<p style="color:#ef4444;padding:40px;text-align:center;">❌ Hindi ma-load. Subukan ulit mamaya.</p>';
     console.error(err);
   }
 }
@@ -316,41 +290,76 @@ async function loadConfig() {
 function applyConfig(cfg) {
   document.title = cfg.brandName || 'Welcome';
   document.getElementById('brandEyebrow').textContent = cfg.brandName || '';
-  document.getElementById('heroHeadline').textContent = cfg.heroText || 'Kumita Online.';
-  document.getElementById('heroSub').textContent = cfg.subText || '';
+  document.getElementById('heroHeadline').textContent = cfg.heroText || cfg.brandName || 'Kumita Online.';
+  document.getElementById('heroSub').textContent = cfg.subText || cfg.tagline || '';
+  const cta = document.getElementById('heroCta');
+  cta.textContent = cfg.ctaText || '📩 Makipag-usap';
+  cta.href = cfg.messengerLink || '#';
   document.getElementById('bundleCardName').textContent = cfg.bundleName || 'Bundle Package';
   document.getElementById('bundleCardPrice').textContent = cfg.bundlePrice || '₱1,997';
-  document.getElementById('bundlePayBtn').textContent = 'Mag-avail ng ' + (cfg.bundleName || 'Bundle') + ' →';
+  const bb = document.getElementById('bundlePayBtn');
+  bb.href = cfg.bundleLink || '#';
+  bb.textContent = 'Mag-avail ng ' + (cfg.bundleName || 'Bundle') + ' →';
   document.getElementById('vipCardName').textContent = cfg.vipName || 'VIP Package';
   document.getElementById('vipCardPrice').textContent = cfg.vipPrice || '₱997';
-  document.getElementById('vipPayBtn').textContent = 'Mag-avail ng ' + (cfg.vipName || 'VIP') + ' →';
+  const vb = document.getElementById('vipPayBtn');
+  vb.href = cfg.vipLink || '#';
+  vb.textContent = 'Mag-avail ng ' + (cfg.vipName || 'VIP') + ' →';
   document.getElementById('footerText').textContent = '© ' + new Date().getFullYear() + ' ' + (cfg.brandName || '') + ' — Lahat ng karapatan ay nakalaan.';
   document.getElementById('chatBotName').textContent = (cfg.brandName || 'ROI') + ' AI Assistant';
 }
 
+// ===== FAQs =====
+function buildFAQs(text) {
+  const c = document.getElementById('faqContainer');
+  if (!text.trim()) { c.innerHTML = '<p style="color:#475569;font-size:0.88rem;">Walang FAQs.</p>'; return; }
+  const lines = text.split('\n');
+  const faqs = []; let q = null, a = [];
+  lines.forEach(l => {
+    const t = l.trim();
+    if (t.startsWith('Q:')) { if (q) faqs.push({q, a: a.join('\n').trim()}); q = t.replace(/^Q:\s*/,''); a = []; }
+    else if (t.startsWith('A:')) a.push(t.replace(/^A:\s*/,''));
+    else if (q) a.push(t);
+  });
+  if (q) faqs.push({q, a: a.join('\n').trim()});
+  if (!faqs.length) { c.innerHTML = `<div class="services-text">${text}</div>`; return; }
+  c.innerHTML = faqs.map((f,i) => `
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFAQ(${i})"><span>${f.q}</span><span class="arrow">▼</span></div>
+      <div class="faq-a" id="faq-a-${i}">${f.a}</div>
+    </div>`).join('');
+}
+function toggleFAQ(i) {
+  document.querySelectorAll('.faq-q')[i].classList.toggle('open');
+  document.getElementById('faq-a-' + i).classList.toggle('open');
+}
+
+// ===== LEAD FORM =====
 async function submitLead() {
   const name = document.getElementById('leadName').value.trim();
   const contact = document.getElementById('leadContact').value.trim();
   const interest = document.getElementById('leadInterest').value.trim();
-  if (!name || !contact) { showToast('⚠️ Pakisulat ang iyong pangalan at contact channel!'); return; }
+  if (!name || !contact) { showToast('⚠️ Punan ang pangalan at contact!'); return; }
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Ipinapadala...';
+  btn.disabled = true; btn.textContent = 'Nagpapadala...';
   try {
     await fetch(SCRIPT_URL + '?action=saveLead&' + new URLSearchParams({name, contact, interest, type: 'lead', date: new Date().toLocaleString('en-PH')}));
     document.getElementById('successMsg').style.display = 'block';
     btn.style.display = 'none';
-    showToast('✅ Detalye matagumpay na naipadala!');
+    showToast('✅ Natanggap! Salamat!');
   } catch {
-    btn.disabled = false; btn.textContent = '✉️ Ipadala ang Detalye';
-    showToast('❌ May error. Subukan ulit.');
+    btn.disabled = false; btn.textContent = '✉️ Ipadala';
+    showToast('❌ Error. Subukan ulit.');
   }
 }
 
+// ===== CHATBOT =====
 function toggleChat() {
   chatOpen = !chatOpen;
   document.getElementById('chatWindow').classList.toggle('open', chatOpen);
   if (chatOpen) {
     document.getElementById('chatFab').innerHTML = '✕';
+    document.querySelector('#chatFab .notif') && document.querySelector('#chatFab .notif').remove();
     document.getElementById('chatInput').focus();
     scrollChat();
   } else {
@@ -362,39 +371,41 @@ function initChat() {
   chatHistory = [
     {
       role: 'system',
-      content: `Ikaw ay isang smart at modernong AI sales employee para sa "${siteConfig.brandName || 'aming negosyo'}".
+      content: `Ikaw si Alia, ang AI sales assistant ng ${siteConfig.brandName || 'aming negosyo'}. Kausap mo ang isang customer — sumagot ng natural at mainit, parang tunay na tao. Huwag mag-explain ng rules.
 
-DITO NAKALAGAY ANG MASTER INFORMATION AT INSTRUCTIONS NG BUSINESS:
-${siteConfig.botInstructions || 'Mag-alok ng tulong sa customers tungkol sa aming mga produkto.'}
+${siteConfig.botInstructions || siteConfig.servicesText || ''}
 
-MGA CURRENT PACKAGES:
-- ${siteConfig.bundleName || 'Funnelcraftph Bundle'}: ${siteConfig.bundlePrice || '₱1,997'}
-- ${siteConfig.vipName || 'AI Business Employee VIP'}: ${siteConfig.vipPrice || '₱997'}
+MGA PACKAGE:
+- ${siteConfig.bundleName || 'Bundle Package'}: ${siteConfig.bundlePrice || '₱1,997'}
+- ${siteConfig.vipName || 'VIP Package'}: ${siteConfig.vipPrice || '₱997'}
 
-MANUAL CHECKOUT ACCOUNTS:
-- GCash Account: 09231893139 (Levi Ugaban Mariano)
-- Maya Account: 09461825985 (Levi Ugaban Mariano)
+PAGBABAYAD: GCash 09231893139 | Maya 09461825985 (Levi Ugaban Mariano)
+Pagkatapos magbayad, i-send screenshot sa: ${siteConfig.messengerLink || 'https://m.me/118441451362301?ref=2560834'}
 
-MGA PANUNTUNAN SA CHAT:
-1. Kapag nagtanong kung paano magbayad, sabihin na i-send sa GCash o Maya at pagkatapos ay IPADALA ANG SCREENSHOT NG RESIBO SA LINK NA ITO: https://m.me/118441451362301?ref=2560834.
-2. Kapag nagtanong tungkol sa Funnelcraftph o AI Business Employee, maglagay ka ng magandang button option sa dulo ng sagot mo na may format na katulad nito:
-<br><a class="chat-link-btn" href="#">Mag-avail ng Funnelcraftph</a> o kaya <a class="chat-link-btn" href="#">Mag-avail ng AI Business Employee</a>
-3. Sumagot gamit ang Modern Direct Response Taglish alignment rules.`
+FAQS: ${siteConfig.faqsText || ''}
+
+PRODUCT IMAGES: May ${productImages.length} images. Kapag nagtanong ng sample/larawan/litrato, lagyan ng [SHOW_IMAGES] ang sagot.
+
+PANUNTUNAN: Sumagot sa natural Taglish, parang tao hindi robot. Huwag mag-list ng instructions. 2-3 sentences lang, may follow-up question sa dulo. Huwag sabihing AI ka.`
     }
   ];
-  addBotMessage(`Kamusta! 👋 Ako ang AI assistant ng **${siteConfig.brandName || 'aming negosyo'}**. Interesado ka ba sa aming **Funnelcraftph** o **AI Business Employee** system? I-click ang chips sa ibaba o magtanong ka lang! 😊`);
+
+  addBotMessage(`Kamusta! 👋 Ako ang AI assistant ng **${siteConfig.brandName || 'aming negosyo'}**. Paano kita matutulungan ngayon? 😊`);
 }
 
 function addBotMessage(text, imgs = []) {
   const msgs = document.getElementById('chatMessages');
-  const div = document.createElement('div'); div.className = 'msg bot';
-  
-  // FIXED REGEX FORMATTING FOR BOLD TEXT TO PREVENT SYNTAX AND BLANK RENDERING ERRORS
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+
   let content = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   let imgHtml = '';
   if (imgs.length) {
-    imgHtml = imgs.map(img => `<img class="chat-img" src="${img.data}" alt="${img.name}" onclick="openLightbox('${img.data}')">`).join('');
+    imgHtml = imgs.map(img => `
+      <img class="chat-img" src="${img.data}" alt="${img.name}" title="${img.name}: ${img.desc||''}"
+        onclick="openLightbox('${img.data}')">`).join('');
   }
+
   div.innerHTML = `<div class="msg-avatar bot-avatar">🤖</div><div><div class="msg-bubble">${content}</div>${imgHtml}</div>`;
   msgs.appendChild(div);
   scrollChat();
@@ -402,7 +413,8 @@ function addBotMessage(text, imgs = []) {
 
 function addUserMessage(text) {
   const msgs = document.getElementById('chatMessages');
-  const div = document.createElement('div'); div.className = 'msg user';
+  const div = document.createElement('div');
+  div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user-avatar">👤</div><div class="msg-bubble">${text.replace(/</g,'&lt;')}</div>`;
   msgs.appendChild(div);
   scrollChat();
@@ -410,16 +422,40 @@ function addUserMessage(text) {
 
 function showTyping() {
   const msgs = document.getElementById('chatMessages');
-  const div = document.createElement('div'); div.className = 'msg bot'; div.id = 'typingMsg';
+  const div = document.createElement('div');
+  div.className = 'msg bot'; div.id = 'typingMsg';
   div.innerHTML = `<div class="msg-avatar bot-avatar">🤖</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
   msgs.appendChild(div);
   scrollChat();
 }
-function removeTyping() { const t = document.getElementById('typingMsg'); if (t) t.remove(); }
-function scrollChat() { const m = document.getElementById('chatMessages'); setTimeout(() => m.scrollTop = m.scrollHeight, 50); }
-function chatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-function sendChip(el) { const text = el.textContent.trim(); sendMessageText(text); }
-function sendMessage() { const input = document.getElementById('chatInput'); const text = input.value.trim(); if (!text || isTyping) return; input.value = ''; sendMessageText(text); }
+
+function removeTyping() {
+  const t = document.getElementById('typingMsg'); if (t) t.remove();
+}
+
+function scrollChat() {
+  const m = document.getElementById('chatMessages');
+  setTimeout(() => m.scrollTop = m.scrollHeight, 50);
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function sendChip(el) {
+  const text = el.textContent.trim();
+  document.getElementById('quickChips').style.display = 'none';
+  sendMessageText(text);
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+  input.value = '';
+  document.getElementById('quickChips').style.display = 'none';
+  sendMessageText(text);
+}
 
 async function sendMessageText(text) {
   addUserMessage(text);
@@ -429,42 +465,57 @@ async function sendMessageText(text) {
   showTyping();
 
   try {
-    const activeProvider = siteConfig.aiProvider || localStorage.getItem('aiProvider') || 'openrouter';
-    let rawKey = siteConfig.aiApiKey || localStorage.getItem('aiApiKey') || '';
-    if (rawKey && rawKey.trim() !== '') { try { rawKey = atob(rawKey.trim()); } catch(e){} }
-    
-    if (!rawKey || typeof rawKey !== 'string' || !rawKey.trim().startsWith('sk-')) {
-      rawKey = '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';
-    }
-
+    const provider = siteConfig.aiProvider || 'groq';
+    const apiKey = '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';
     let reply = '';
-    const targetModel = activeProvider === 'gemini' ? 'google/gemini-flash-1.5' : 'meta-llama/llama-3.1-8b-instruct:free';
 
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + rawKey.trim(),
-        'HTTP-Referer': 'https://digiteralevi.github.io',
-        'X-Title': 'AI Business Employee'
-      },
-      body: JSON.stringify({ model: targetModel, max_tokens: 1000, messages: chatHistory })
-    });
-    
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    reply = data.choices?.[0]?.message?.content || 'Paumanhin, hindi ko naintindihan. Subukan ulit.';
+    if (provider === 'groq' || provider === 'gemini') {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey
+        },
+        body: JSON.stringify({
+          model: 'openrouter/auto',
+          max_tokens: 1000,
+          messages: chatHistory
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      reply = data.choices?.[0]?.message?.content || 'Paumanhin, hindi ko naintindihan. Subukan ulit.';
+    } else {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey,
+          'HTTP-Referer': 'https://digiteralevi.github.io',
+          'X-Title': 'AI Business Employee'
+        },
+        body: JSON.stringify({
+          model: 'openrouter/auto',
+          max_tokens: 1000,
+          messages: chatHistory
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      reply = data.choices?.[0]?.message?.content || 'Paumanhin, hindi ko naintindihan. Subukan ulit.';
+    }
 
     chatHistory.push({ role: 'assistant', content: reply });
     removeTyping();
 
+    // Check if bot wants to show images
     const showImgs = reply.includes('[SHOW_IMAGES]') && productImages.length > 0;
     const cleanReply = reply.replace('[SHOW_IMAGES]', '').trim();
 
     addBotMessage(cleanReply, showImgs ? productImages.slice(0, 4) : []);
   } catch (err) {
     removeTyping();
-    addBotMessage('Paumanhin, may kaunting aberya sa server. Pakisubukan na lang ulit maya-maya.');
+    addBotMessage('Paumanhin, may error sa aking sistema. Subukan ulit mamaya o makipag-ugnayan sa amin nang direkta.');
     console.error(err);
   }
 
@@ -473,9 +524,16 @@ async function sendMessageText(text) {
   document.getElementById('chatInput').focus();
 }
 
-function openLightbox(src) { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').classList.add('show'); }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
+// ===== LIGHTBOX =====
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+}
 
+// ===== INIT =====
 loadConfig();
 </script>
 </body>
