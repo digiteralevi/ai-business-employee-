@@ -7,7 +7,6 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    /* PREMIUM COLOR BRANDING PALETTE: Soft Lilac, Gold, and Beige */
     --accent: #9d8ec0;       /* Soft Lilac Purple */
     --accent-dark: #5a4d78;  /* Deep Lilac shadow */
     --accent2: #c9a84c;      /* Metallic Gold */
@@ -29,27 +28,24 @@
   #loadingScreen p { color: var(--textdim); font-size: 0.9rem; }
   #mainContent { display: none; }
 
-  /* HERO WITH LUXURY LILAC & GOLD GLOW */
+  /* HERO */
   .hero { background: linear-gradient(135deg, #2b1f45 0%, #120f1a 70%); padding: 90px 20px 80px; text-align: center; position: relative; overflow: hidden; border-bottom: 2px solid #c9a84c33; }
   .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%); }
   .hero-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; color: var(--accent2); text-transform: uppercase; margin-bottom: 14px; text-shadow: 0 0 10px rgba(201,168,76,0.3); }
   .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.2; color: var(--beige); margin-bottom: 14px; position: relative; }
   .hero p { font-size: 1.05rem; color: var(--textdim); max-width: 540px; margin: 0 auto 32px; line-height: 1.7; position: relative; }
   
-  /* KUMIKINANG NA BUTTONS */
-  .hero-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--gold-glow); color: #231b07; padding: 14px 32px; border-radius: 30px; font-size: 0.95rem; font-weight: 800; text-decoration: none; position: relative; transition: all 0.25s ease; box-shadow: 0 4px 20px rgba(201,168,76,0.35); text-transform: uppercase; letter-spacing: 0.5px; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--gold-glow); color: #231b07; padding: 14px 32px; border-radius: 30px; font-size: 0.95rem; font-weight: 800; text-decoration: none; position: relative; transition: all 0.25s ease; box-shadow: 0 4px 20px rgba(201,168,76,0.35); text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; }
   .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 6px 28px rgba(201,168,76,0.6); opacity: 0.95; }
 
   /* SECTIONS */
   .section { max-width: 820px; margin: 0 auto; padding: 56px 20px; }
   .section-title { font-size: 1.25rem; font-weight: 800; color: var(--beige); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--accent2); display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
-  /* PRICING WITH GOLD & LILAC ACCENTS */
+  /* PRICING */
   .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media(max-width:560px){ .pricing-grid { grid-template-columns: 1fr; } }
-  .price-card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 32px 24px; text-align: center; transition: transform 0.2s; position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
-  
-  /* VIP FEATURED CARD SHINE EFFECT */
+  .price-card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 32px 24px; text-align: center; position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
   .price-card.featured { border-color: var(--accent2); box-shadow: 0 0 0 1px var(--accent2), 0 12px 40px rgba(201,168,76,0.18); background: linear-gradient(180deg, var(--card) 0%, #251e33 100%); }
   
   .price-badge { display: inline-block; margin-bottom: 12px; background: var(--accent-dark); color: var(--text); font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; border: 1px solid var(--accent); }
@@ -62,16 +58,14 @@
   .price-btn { display: block; width: 100%; padding: 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; text-decoration: none; text-align: center; transition: all 0.2s ease; cursor: pointer; border: none; text-transform: uppercase; letter-spacing: 0.5px; }
   .price-btn:hover { transform: translateY(-2px); opacity: 0.95; }
   .btn-indigo { background: linear-gradient(135deg, #7c6b9e, #5a4d78); color: #fff; box-shadow: 0 4px 14px rgba(90,77,120,0.4); border: 1px solid var(--accent); }
-  .btn-indigo:hover { box-shadow: 0 6px 20px rgba(124,107,158,0.5); }
   .btn-green { background: var(--gold-glow); color: #231b07; box-shadow: 0 4px 16px rgba(201,168,76,0.3); }
-  .btn-green:hover { box-shadow: 0 6px 24px rgba(201,168,76,0.5); }
 
-  /* LEAD FORM */
+  /* FORM */
   .lead-form { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--textdim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
   .form-group input { width: 100%; background: var(--dark); border: 2px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px 16px; font-size: 0.92rem; font-family: inherit; outline: none; transition: all 0.2s; }
-  .form-group input:focus { border-color: var(--accent2); background: #231d30; box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
+  .form-group input:focus { border-color: var(--accent2); background: #231d30; }
   
   .submit-btn { width: 100%; padding: 14px; background: var(--gold-glow); color: #231b07; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(201,168,76,0.2); }
   .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.4); }
@@ -80,19 +74,18 @@
 
   .footer { text-align: center; padding: 32px 20px; font-size: 0.8rem; color: var(--muted); border-top: 2px solid var(--border); margin-top: 56px; background: #0c0a12; }
 
-  /* ===== PAYMENT MODAL WITH GOLD SHINE ===== */
+  /* ===== PAYMENT MODAL ===== */
   #paymentModal { position: fixed; inset: 0; background: rgba(10, 8, 15, 0.9); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; backdrop-filter: blur(4px); }
   #paymentModal.show { display: flex; }
-  .modal-content { background: var(--card); border: 2px solid var(--accent2); border-radius: 20px; padding: 28px; max-width: 440px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.5); text-align: center; position: relative; }
+  .modal-content { background: var(--card); border: 2px solid var(--accent2); border-radius: 20px; padding: 28px; max-width: 440px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.5); text-align: center; }
   .modal-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; color: var(--beige); text-transform: uppercase; letter-spacing: 0.5px; }
   .payment-option { background: var(--dark); border: 2px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: left; }
-  .payment-option:hover { border-color: var(--accent); }
   .payment-label { font-size: 0.75rem; font-weight: 800; color: var(--accent2); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
   .payment-details { font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
   .payment-name { font-size: 0.82rem; color: var(--textdim); margin-top: 2px; }
   .modal-close-btn { background: var(--gold-glow); color: #231b07; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 8px; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; }
 
-  /* ===== CHATBOT (LILAC TO GOLD THEME) ===== */
+  /* ===== CHATBOT FAB & WINDOW ===== */
   #chatFab {
     position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%;
     background: var(--gold-glow); color: #231b07; border: none; cursor: pointer;
@@ -429,8 +422,14 @@ async function sendMessageText(text) {
   try {
     const activeProvider = siteConfig.aiProvider || localStorage.getItem('aiProvider') || 'openrouter';
     let rawKey = siteConfig.aiApiKey || localStorage.getItem('aiApiKey') || '';
-    if (rawKey) { try { rawKey = atob(rawKey); } catch(e){} }
-    else { rawKey = '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'; }
+    
+    // SAFE FALLBACK & RE-DECODING LAYER
+    if (rawKey && rawKey.trim() !== '') {
+      try { rawKey = atob(rawKey); } catch(e){}
+    } else {
+      // Kung blangko ang nakuha mula sa dynamic sheets config, gamitin ang gumaganang key mo
+      rawKey = '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';
+    }
 
     let reply = '';
     const targetModel = activeProvider === 'gemini' ? 'google/gemini-flash-1.5' : 'meta-llama/llama-3.1-8b-instruct:free';
@@ -439,7 +438,7 @@ async function sendMessageText(text) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + rawKey,
+        'Authorization': 'Bearer ' + rawKey.trim(),
         'HTTP-Referer': 'https://digiteralevi.github.io',
         'X-Title': 'AI Business Employee'
       },
