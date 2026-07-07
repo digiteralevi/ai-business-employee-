@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet\">\n<style>
+  :root {
+    --bg: #f5f0e8; --bg2: #ede7d9; --card: #faf7f2; --border: #d4c5a9;
+    --purple: #7c6b9e; --purple-light: #9d8ec0; --purple-dark: #5a4d78;
+    --gold: #c9a84c;
+    --gold-shine: linear-gradient(135deg, #f0c860 0%, #c9a84c 40%, #e8b84b 60%, #a07830 100%);
+    --text: #3a2d1e; --text2: #6b5744; --muted: #9e8a6e;
+    --shadow: 0 4px 24px rgba(124,107,158,0.10);
+    --shadow-gold: 0 2px 12px rgba(201,168,76,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: flex-start; }
+
+  /* LOCK SCREEN */
+  #lockScreen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+  .lock-card { background: var(--card); border: 2px solid var(--border); border-radius: 20px; padding: 40px 30px; max-width: 400px; width: 100%; text-align: center; box-shadow: var(--shadow); }
+  .lock-card h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 24px; color: var(--purple); }
+
+  /* CONTAINER */
+  .container { max-width: 900px; width: 100%; display: none; background: var(--card); border: 2px solid var(--border); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; }
+
+  /* HEADER */
+  .header { background: var(--purple-dark); padding: 32px 24px; text-align: center; color: #fff; position: relative; border-bottom: 2px solid var(--border); }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 800; color: var(--bg); margin-bottom: 6px; letter-spacing: -0.5px; }
+  .header p { font-size: 0.9rem; color: var(--purple-light); font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; }
+
+  /* MAIN CONTENT */
+  .main-grid { padding: 32px 24px; display: grid; grid-template-columns: 1fr; gap: 32px; }
+
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--purple-dark); margin-bottom: 18px; padding-bottom: 8px; border-bottom: 2px dashed var(--border); display: flex; align-items: center; gap: 8px; }
+
+  /* FORM ELEMENTS */
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width: 600px) { .input-row { grid-template-columns: 1fr; } }
+
+  input[type="text"], input[type="password"], textarea, select {
+    width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 12px; padding: 12px 16px; font-family: inherit; font-size: 0.9rem; color: var(--text); outline: none; transition: all 0.2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,107,158,0.15); background: #fff; }
+
+  textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+  .large-textarea { min-height: 240px; font-family: monospace; font-size: 0.85rem; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+  .btn-gold { background: var(--gold-shine); color: var(--text); box-shadow: var(--shadow-gold); font-weight: 800; border: 1px solid rgba(255,255,255,0.2); }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,168,76,0.3); opacity: 0.95; }
+  .btn-gold:active { transform: translateY(1px); }
+
+  .btn-purple { background: var(--purple); color: #fff; }
+  .btn-purple:hover { background: var(--purple-dark); }
+
+  .action-bar { display: flex; justify-content: flex-end; padding: 20px 24px; background: var(--bg2); border-top: 2px solid var(--border); gap: 12px; }
+
+  /* FLOATING TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--purple-dark); color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,0.15); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10000; pointer-events: none; border: 1px solid var(--purple-light); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* IMAGE LIST */
+  .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; margin-top: 14px; }
+  .img-item { background: #fff; border: 2px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .img-item img { width: 100%; height: 100px; object-fit: cover; border-bottom: 2px solid var(--border); }
+  .img-item .meta { padding: 6px; font-size: 0.72rem; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .img-item .del-btn { position: absolute; top: 4px; right: 4px; background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 6px; width: 22px; height: 22px; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+  .img-item .del-btn:hover { background: rgb(220,38,38); }
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lock-card">
+    <h2>🔒 Security Access</h2>
+    <div class="form-group" style="text-align:left;">
+      <label>Web App SCRIPT_URL (Required)</label>
+      <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/.../exec">
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Admin Password</label>
+      <input type="password" id="adminPasswordInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') unlockPanel()">
+    </div>
+    <button class="btn btn-gold" style="width:100%; margin-top:10px;" onclick="unlockPanel()">Unlock Panel</button>
+  </div>
+</div>
+
+<div class="container" id="mainContainer">
+  <div class="header">
+    <h1 id="panelTitle">Digitera Levi</h1>
+    <p>Storefront Engine & Configuration</p>
+  </div>
+
+  <div class="main-grid">
+    <div>
+      <div class="section-title">✨ Branding & Base Settings</div>
+      <div class="input-row">
+        <div class="form-group">
+          <label>Brand Name</label>
+          <input type="text" id="brandName" placeholder="e.g. Digitera Levi">
+        </div>
+        <div class="form-group">
+          <label>Messenger Link (Contact Us)</label>
+          <input type="text" id="messengerLink" placeholder="https://m.me/yourpage">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Hero Headline</label>
+        <input type="text" id="heroText" placeholder="Headline sa landing page">
+      </div>
+      <div class="form-group">
+        <label>Hero Subtext / Description</label>
+        <textarea id="subText" placeholder="Sub-headline o maikling paglalarawan..."></textarea>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">💰 Product Packages Setup</div>
+      <div style="background:var(--bg2); padding:16px; border-radius:16px; margin-bottom:16px;">
+        <p style="font-size:0.8rem; font-weight:700; color:var(--purple-dark); text-transform:uppercase; margin-bottom:12px;">📦 Package 1 (Left Side)</p>
+        <div class="input-row">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="bundleName" placeholder="e.g. Starter Bundle">
+          </div>
+          <div class="form-group">
+            <label>Price Text</label>
+            <input type="text" id="bundlePrice" placeholder="₱1,997">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Payment / Checkout URL (Leave blank or set to '#' for Manual GCash/Maya)</label>
+          <input type="text" id="bundleLink" placeholder="https://funnelcraftph.com/... o iwanang blanko">
+        </div>
+      </div>
+
+      <div style="background:var(--bg2); padding:16px; border-radius:16px;">
+        <p style="font-size:0.8rem; font-weight:700; color:var(--purple-dark); text-transform:uppercase; margin-bottom:12px;">👑 Package 2 (Right Side / Featured)</p>
+        <div class="input-row">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="vipName" placeholder="e.g. VIP Access">
+          </div>
+          <div class="form-group">
+            <label>Price Text</label>
+            <input type="text" id="vipPrice" placeholder="₱997">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Payment / Checkout URL (Leave blank or set to '#' for Manual GCash/Maya)</label>
+          <input type="text" id="vipLink" placeholder="https://... o iwanang blanko">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">🤖 AI Assistant Engine</div>
+      <div class="input-row">
+        <div class="form-group">
+          <label>AI Core Provider</label>
+          <select id="aiProvider">
+            <option value="openrouter">OpenRouter (Llama 3.1 8B)</option>
+            <option value="gemini">Google Gemini Flash</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>API Key overrides</label>
+          <input type="password" id="aiApiKey" placeholder="sk-or-v1-...">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>AI Bot Master Instructions (Dito na rin ilagay ang Services at FAQs)</label>
+        <textarea id="botInstructions" class="large-textarea" placeholder="Isulat dito ang lahat ng detalye tungkol sa iyong negosyo, kasama ang services, sagot sa mga madalas itanong (FAQs), at paraan ng pagbabayad..."></textarea>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">🖼️ Gallery & Product Images Asset Manager</div>
+      <div style="background:var(--bg2); padding:20px; border-radius:16px; border:2px dashed var(--border);">
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;">
+          <input type="file" id="imageFile" accept="image/*" style="display:none;" onchange="uploadImage()">
+          <button class="btn btn-purple" onclick="document.getElementById('imageFile').click()">➕ Magdagdag ng Larawan</button>
+          <p style="font-size:0.75rem; color:var(--text2);">Tatanggapin: JPG, PNG, WEBP. Awtomatikong mase-save sa cloud system gallery list.</p>
+        </div>
+        <div class="img-grid" id="imgGrid"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">🔒 System Security</div>
+      <div class="form-group">
+        <label>Change Admin Access Password</label>
+        <input type="password" id="adminPassword" placeholder="Bagong password ng admin dashboard">
+      </div>
+    </div>
+
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-gold" onclick="saveConfig()">💾 I-save ang Lahat ng Pagbabago</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Configuration Updated Successfully!</div>
+
+<script>
+let SCRIPT_URL = '';
+
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'jsonp_' + Math.round(100000 * Math.random());
+    window[callbackName] = function(data) { delete window[callbackName]; document.body.removeChild(script); resolve(data); };
+    const script = document.createElement('script');
+    script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+    script.onerror = () => reject(new Error('JSONP Request Failed'));
+    document.body.appendChild(script);
+  });
+}
+
+async function unlockPanel() {
+  const sUrl = document.getElementById('scriptUrlInput').value.trim();
+  const pass = document.getElementById('adminPasswordInput').value.trim();
+  if (!sUrl) { alert('Paki-input ang Google Web App SCRIPT_URL!'); return; }
+  
+  SCRIPT_URL = sUrl;
+  localStorage.setItem('adminScriptUrl', SCRIPT_URL);
+
+  try {
+    showToast('Checking secure connection...');
+    const data = await jsonp(SCRIPT_URL + '?action=getConfig');
+    const cfg = data.config || {};
+    
+    // Check password if saved on sheets or localStorage
+    const storedPass = localStorage.getItem('adminPass') || '';
+    if (storedPass && pass !== storedPass) { alert('Maling Password! Subukan ulit.'); return; }
+
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'block';
+    
+    applyConfig(cfg);
+    loadImages();
+  } catch(e) {
+    alert('Hindi kumonekta sa Google Sheets Web App. Pakisuri kung tama ang URL mo.');
+    console.error(e);
+  }
+}
+
+function applyConfig(cfg) {
+  if (cfg.brandName) document.getElementById('panelTitle').textContent = cfg.brandName;
+  document.getElementById('brandName').value = cfg.brandName || '';
+  document.getElementById('messengerLink').value = cfg.messengerLink || '';
+  document.getElementById('heroText').value = cfg.heroText || '';
+  document.getElementById('subText').value = cfg.subText || '';
+  document.getElementById('bundleName').value = cfg.bundleName || '';
+  document.getElementById('bundlePrice').value = cfg.bundlePrice || '';
+  document.getElementById('bundleLink').value = cfg.bundleLink || '';
+  document.getElementById('vipName').value = cfg.vipName || '';
+  document.getElementById('vipPrice').value = cfg.vipPrice || '';
+  document.getElementById('vipLink').value = cfg.vipLink || '';
+  
+  // Eto lang ang naiwan na textarea natin ngayon!
+  document.getElementById('botInstructions').value = cfg.botInstructions || '';
+
+  const savedKey = localStorage.getItem('aiApiKey');
+  if (savedKey) document.getElementById('aiApiKey').value = savedKey;
+  const savedProvider = localStorage.getItem('aiProvider');
+  if (savedProvider) document.getElementById('aiProvider').value = savedProvider;
+}
+
+async function saveConfig() {
+  const newPass = document.getElementById('adminPassword').value.trim();
+  const apiKey = document.getElementById('aiApiKey').value.trim();
+  const provider = document.getElementById('aiProvider').value;
+  
+  if (newPass) localStorage.setItem('adminPass', newPass);
+  if (apiKey) localStorage.setItem('aiApiKey', apiKey);
+  if (provider) localStorage.setItem('aiProvider', provider);
+
+  const fields = ['brandName', 'messengerLink', 'heroText', 'subText', 'bundleName', 'bundlePrice', 'bundleLink', 'vipName', 'vipPrice', 'vipLink', 'botInstructions'];
+  
+  showToast('Sinesave ang mga binago sa system...');
+  
+  for (let f of fields) {
+    const val = document.getElementById(f).value;
+    await jsonp(SCRIPT_URL + '?action=saveConfigField&key=' + f + '&value=' + encodeURIComponent(val));
+  }
+
+  if (apiKey) {
+    const encoded = btoa(apiKey);
+    await jsonp(SCRIPT_URL + '?action=saveConfigField&key=aiApiKey&value=' + encodeURIComponent(encoded));
+  }
+  if (provider) {
+    await jsonp(SCRIPT_URL + '?action=saveConfigField&key=aiProvider&value=' + encodeURIComponent(provider));
+  }
+
+  showToast('🎉 Kumpleto na! Naka-save na lahat ng binago mo.');
+}
+
+async function loadImages() {
+  try {
+    const data = await jsonp(SCRIPT_URL + '?action=getImages');
+    const grid = document.getElementById('imgGrid');
+    grid.innerHTML = '';
+    (data.images || []).forEach(img => {
+      const div = document.createElement('div'); div.className = 'img-item';
+      div.innerHTML = `<img src="${img.data}"><div class="meta">${img.name}</div><button class="del-btn" onclick="deleteImage('${img.id}')">✕</button>`;
+      grid.appendChild(div);
+    });
+  } catch(e) { console.error(e); }
+}
+
+function uploadImage() {
+  const file = document.getElementById('imageFile').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function() {
+    showToast('Ina-upload ang imahe...');
+    await jsonp(SCRIPT_URL + '?action=uploadImage&name=' + encodeURIComponent(file.name) + '&data=' + encodeURIComponent(reader.result));
+    showToast('✅ Uploaded!');
+    loadImages();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteImage(id) {
+  if(!confirm('Sigurado ka bang burahin ang larawang ito?')) return;
+  showToast('Binubura...');
+  await jsonp(SCRIPT_URL + '?action=deleteImage&id=' + id);
+  showToast('Deleted.');
+  loadImages();
+}
+
+window.onload = () => {
+  const savedUrl = localStorage.getItem('adminScriptUrl');
+  if (savedUrl) document.getElementById('scriptUrlInput').value = savedUrl;
+};
+</script>
+</body>
+</html>
