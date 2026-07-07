@@ -83,7 +83,10 @@
   .payment-label { font-size: 0.75rem; font-weight: 800; color: var(--accent2); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
   .payment-details { font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
   .payment-name { font-size: 0.82rem; color: var(--textdim); margin-top: 2px; }
-  .modal-close-btn { background: var(--gold-glow); color: #231b07; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 8px; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .btn-modal-action { display: block; width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; font-size: 0.88rem; margin-top: 10px; border: none; }
+  .btn-modal-messenger { background: var(--gold-glow); color: #231b07; box-shadow: 0 4px 14px rgba(201,168,76,0.3); }
+  .btn-modal-close { background: var(--bg); color: var(--textdim); background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); }
 
   /* ===== CHATBOT FAB & WINDOW ===== */
   #chatFab {
@@ -160,6 +163,7 @@
 </div>
 
 <div id="mainContent">
+  <!-- HERO -->
   <div class="hero">
     <p class="hero-eyebrow" id="brandEyebrow"></p>
     <h1 id="heroHeadline">Naglo-load...</h1>
@@ -167,6 +171,7 @@
     <div id="heroCta" class="hero-cta" onclick="toggleChat()">📩 Magtanong sa aming AI</div>
   </div>
 
+  <!-- PRICING -->
   <div class="section">
     <div class="section-title">💰 Mga Eksklusibong Package</div>
     <div class="pricing-grid">
@@ -185,13 +190,14 @@
     </div>
   </div>
 
+  <!-- LEAD FORM -->
   <div class="section" style="padding-top:0">
     <div class="section-title">📩 Ipadala ang iyong Detalye</div>
     <div class="lead-form">
       <div class="form-group"><label>Pangalan *</label><input type="text" id="leadName" placeholder="Iyong kumpletong pangalan"></div>
       <div class="form-group"><label>Messenger / Contact *</label><input type="text" id="leadContact" placeholder="Link ng iyong Messenger o Contact Number"></div>
       <div class="form-group"><label>Interesado sa Package (Optional)</label><input type="text" id="leadInterest" placeholder="Halimbawa: Bundle, VIP, o may itatanong lang"></div>
-      <button class="submit-btn" id="submitBtn" onclick="submitLead()">✉️ Ipadala the Detalye</button>
+      <button class="submit-btn" id="submitBtn" onclick="submitLead()">✉️ Ipadala ang Detalye</button>
       <div class="success-msg" id="successMsg">✅ Detalye nakuha na! Makikipag-ugnayan kami sa inyo agad-agad. 🙏</div>
     </div>
   </div>
@@ -199,10 +205,11 @@
   <div class="footer" id="footerText"></div>
 </div>
 
+<!-- ===== MANUAL PAYMENT MODAL ===== -->
 <div id="paymentModal">
   <div class="modal-content">
     <div class="modal-header">💳 Manual Payment Gateway</div>
-    <p style="font-size:0.85rem; color:var(--textdim); margin-bottom:18px;">I-send ang bayad sa alinman sa mga accounts sa ibaba at magpadala ng screenshot sa aming chatbot o contact form para ma-verify. 🙏</p>
+    <p style="font-size:0.85rem; color:var(--textdim); margin-bottom:18px;">I-send ang bayad sa alinman sa mga accounts sa ibaba at <strong>i-click ang button sa ibaba para direktang magpadala ng resibo sa aking Messenger</strong> para sa activation. 🙏</p>
     
     <div class="payment-option">
       <div class="payment-label">GCash Account</div>
@@ -216,10 +223,13 @@
       <div class="payment-name">Levi Ugaban Mariano</div>
     </div>
 
-    <button class="modal-close-btn" onclick="closePaymentModal()">Nakuha ko na!</button>
+    <!-- DIRECT MESSENGER REDIRECT VIA YOUR DEEP LINK -->
+    <a href="https://m.me/118441451362301?ref=2560834" target="_blank" class="btn-modal-action btn-modal-messenger">💬 Ipadala ang Screenshot dito</a>
+    <button class="btn-modal-action btn-modal-close" onclick="closePaymentModal()">Nakuha ko na / Isara</button>
   </div>
 </div>
 
+<!-- ===== CHATBOT FAB & WINDOW ===== -->
 <button id="chatFab" onclick="toggleChat()">💬</button>
 
 <div id="chatWindow">
@@ -247,6 +257,7 @@
   </div>
 </div>
 
+<!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
 <div class="toast" id="toast"></div>
 
@@ -371,21 +382,19 @@ MANUAL CHECKOUT ACCOUNTS:
 - GCash Account: 09231893139 (Levi Ugaban Mariano)
 - Maya Account: 09461825985 (Levi Ugaban Mariano)
 
-MGA PANUNTUNAN:
-1. Kapag nagtanong tungkol sa Funnelcraftph o AI Business Employee, maglagay ka ng magandang button option sa dulo ng sagot mo na may format na katulad nito:
+MGA PANUNTUNAN SA CHAT:
+1. Kapag nagtanong kung paano magbayad, sabihin na i-send sa GCash o Maya at pagkatapos ay IPADALA ANG SCREENSHOT NG RESIBO SA LINK NA ITO: https://m.me/118441451362301?ref=2560834.
+2. Kapag nagtanong tungkol sa Funnelcraftph o AI Business Employee, maglagay ka ng magandang button option sa dulo ng sagot mo na may format na katulad nito:
 <br><a class="chat-link-btn" href="#">Mag-avail ng Funnelcraftph</a> o kaya <a class="chat-link-btn" href="#">Mag-avail ng AI Business Employee</a>
-2. Sumagot gamit ang Modern Direct Response Taglish alignment rules.`
+3. Sumagot gamit ang Modern Direct Response Taglish alignment rules.`
     }
   ];
   addBotMessage(`Kamusta! 👋 Ako ang AI assistant ng **${siteConfig.brandName || 'aming negosyo'}**. Interesado ka ba sa aming **Funnelcraftph** o **AI Business Employee** system? I-click ang chips sa ibaba o magtanong ka lang! 😊`);
 }
 
-// INAYOS NA REPLACEMENT CORE ENGINE FUNCTION PARA HINDI NA MAG-BLANKO ANG BOT
 function addBotMessage(text, imgs = []) {
   const msgs = document.getElementById('chatMessages');
   const div = document.createElement('div'); div.className = 'msg bot';
-  
-  // FIXED STYLING REGEX LOOP
   let content = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   let imgHtml = '';
   if (imgs.length) {
