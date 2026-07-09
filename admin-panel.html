@@ -270,10 +270,6 @@
   <!-- IMAGES TAB -->
   <div id="tab-images" class="pane">
     <div class="section-title">🖼️ Product Images</div>
-    <div class="form-group">
-      <label>ImgBB API Key</label>
-      <input type="text" id="imgbbApiKey" placeholder="ImgBB API key..." value="3c2faf3ba2a018485e1a41a941156f6b">
-    </div>
     <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
       <div style="font-size:2rem;">📁</div>
       <strong style="color:var(--text);">Mag-click o i-drag ang images dito</strong>
@@ -327,7 +323,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6bRNE0od7l9u7ANfgCx-xWQU21ToKGgj_7JdIVQUXPqRq5MSu7n1bzdiDq8Kez4Q/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjjnlPZqEt_RC6hc4y3qr1YBuPU_1r6AsZ3SRAj0BuTFFvoDmm1fBsfnpkd72_9TM/exec';
 let currentLeads = [];
 let pendingImages = [];
 
@@ -404,7 +400,6 @@ function unlockPanel() {
   loadConfig();
   const k = localStorage.getItem('aiApiKey'); if (k) document.getElementById('aiApiKey').value = k;
   const p = localStorage.getItem('aiProvider'); if (p) document.getElementById('aiProvider').value = p;
-  const imgK = localStorage.getItem('imgbbKey'); if (imgK) document.getElementById('imgbbApiKey').value = imgK;
 }
 
 // ===== HELPERS =====
@@ -510,8 +505,6 @@ function clearPending() { pendingImages=[]; renderPending(); document.getElement
 async function uploadAllImages() {
   if (!pendingImages.length) return;
   if (pendingImages.some(img => !img.name.trim())) { showToast('⚠️ Lagyan ng pangalan ang lahat!', true); return; }
-  const apiKey = document.getElementById('imgbbApiKey').value.trim();
-  if (!apiKey) { showToast('⚠️ Walang ImgBB API key!', true); return; }
 
   document.getElementById('uploadingIndicator').style.display = 'block';
   document.getElementById('progressBar').style.display = 'block';
@@ -521,17 +514,22 @@ async function uploadAllImages() {
     const img = pendingImages[i];
     try {
       const compressed = await compressImage(img.dataUrl, 800, 0.75);
-      const base64 = compressed.split(',')[1];
-      const form = new FormData();
-      form.append('key', apiKey); form.append('image', base64); form.append('name', img.name);
-      const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form });
+      const base64 = compressed.split(',')[1]; // tanggalin ang "data:image/jpeg;base64," prefix
+
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // iwasan ang CORS preflight
+        body: JSON.stringify({
+          action: 'uploadImage',
+          imageName: img.name,
+          imageDesc: img.desc,
+          imageData: base64,
+          fileExt: 'jpg'
+        })
+      });
       const data = await res.json();
-      if (data.success) {
-        await jsonp(SCRIPT_URL + '?action=saveImage&imageName=' + encodeURIComponent(img.name) +
-          '&imageDesc=' + encodeURIComponent(img.desc) + '&imageData=' + encodeURIComponent(data.data.url) +
-          '&timestamp=' + encodeURIComponent(new Date().toLocaleString('en-PH')));
-        success++;
-      }
+      if (data.status === 'ok') success++;
+      else console.error('Upload failed:', data.message);
     } catch(e) { console.error(e); }
     document.getElementById('progressFill').style.width = ((i+1)/pendingImages.length*100) + '%';
   }
