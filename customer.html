@@ -398,7 +398,11 @@ function addBotMessage(text, imgs = []) {
   let content = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   let imgHtml = '';
   if (imgs.length) {
-    imgHtml = imgs.map(img => `<img class="chat-img" src="${img.data}" alt="${img.name}" onclick="openLightbox('${img.data}')">`).join('');
+    imgHtml = imgs.map(img => {
+      var src = img.data || img.url || '';
+      var name = img.name || '';
+      return `<img class="chat-img" src="${src}" alt="${name}" onclick="openLightbox('${src}')">`;
+    }).join('');
   }
   div.innerHTML = `<div class="msg-avatar bot-avatar">🤖</div><div><div class="msg-bubble">${content}</div>${imgHtml}</div>`;
   msgs.appendChild(div);
