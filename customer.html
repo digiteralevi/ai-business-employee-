@@ -263,6 +263,7 @@
 
 <script>
 const SCRIPT_URL = (() => { const p = new URLSearchParams(window.location.search); return p.get('src') || ''; })();
+const IMAGES_URL = 'https://script.google.com/macros/s/AKfycby6bRNE0od7l9u7ANfgCx-xWQU21ToKGgj_7JdIVQUXPqRq5MSu7n1bzdiDq8Kez4Q/exec';
 
 let siteConfig = {};
 let productImages = [];
@@ -294,20 +295,22 @@ document.addEventListener('click', function(e) {
 });
 
 async function loadConfig() {
+  // Always load images regardless of SCRIPT_URL
+  try {
+    const imgRes = await fetch(IMAGES_URL + '?action=getImages');
+    const imgData = await imgRes.json();
+    productImages = imgData.images || [];
+    console.log('Images loaded:', productImages.length);
+  } catch(e) { console.log('Image load failed:', e); }
+
   if (!SCRIPT_URL) {
     document.getElementById('loadingScreen').innerHTML = '<p style="color:#ef4444;padding:40px;text-align:center;">⚠️ Invalid token. Please reload via your secure integration link.</p>';
     return;
   }
   try {
-    const [cfgRes, imgRes] = await Promise.all([
-      fetch(SCRIPT_URL + '?action=getConfig'),
-      fetch(SCRIPT_URL + '?action=getImages')
-    ]);
+    const cfgRes = await fetch(SCRIPT_URL + '?action=getConfig');
     const cfgData = await cfgRes.json();
-    const imgData = await imgRes.json();
-
     siteConfig = cfgData.config || {};
-    productImages = imgData.images || [];
 
     applyConfig(siteConfig);
     document.getElementById('loadingScreen').style.display = 'none';
