@@ -502,6 +502,12 @@ function renderPending() {
 function removePending(i) { pendingImages.splice(i,1); renderPending(); }
 function clearPending() { pendingImages=[]; renderPending(); document.getElementById('fileInput').value=''; }
 
+const GITHUB_TOKEN  = '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';
+const GITHUB_OWNER  = 'digiteralevi';
+const GITHUB_REPO   = 'ai-business-employee-';
+const GITHUB_BRANCH = 'main';
+const GITHUB_FOLDER = 'product-images';
+
 async function uploadAllImages() {
   if (!pendingImages.length) return;
   if (pendingImages.some(img => !img.name.trim())) { showToast('⚠️ Lagyan ng pangalan ang lahat!', true); return; }
@@ -514,22 +520,37 @@ async function uploadAllImages() {
     const img = pendingImages[i];
     try {
       const compressed = await compressImage(img.dataUrl, 800, 0.75);
-      const base64 = compressed.split(',')[1]; // tanggalin ang "data:image/jpeg;base64," prefix
+      const base64 = compressed.split(',')[1];
 
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // iwasan ang CORS preflight
+      const safeName = img.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const fileName = safeName + '-' + Date.now() + '.jpg';
+      const path = GITHUB_FOLDER + '/' + fileName;
+
+      const ghRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + path, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + GITHUB_TOKEN,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
-          action: 'uploadImage',
-          imageName: img.name,
-          imageDesc: img.desc,
-          imageData: base64,
-          fileExt: 'jpg'
+          message: 'Upload product image: ' + fileName,
+          content: base64,
+          branch: GITHUB_BRANCH
         })
       });
-      const data = await res.json();
-      if (data.status === 'ok') success++;
-      else console.error('Upload failed:', data.message);
+      const ghData = await ghRes.json();
+
+      if (ghRes.ok) {
+        const rawUrl = 'https://raw.githubusercontent.com/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/' + GITHUB_BRANCH + '/' + path;
+        await jsonp(SCRIPT_URL + '?action=saveImage&imageName=' + encodeURIComponent(img.name) +
+          '&imageDesc=' + encodeURIComponent(img.desc) + '&imageData=' + encodeURIComponent(rawUrl) +
+          '&githubPath=' + encodeURIComponent(path) +
+          '&timestamp=' + encodeURIComponent(new Date().toLocaleString('en-PH')));
+        success++;
+      } else {
+        console.error('GitHub upload failed:', ghData.message);
+      }
     } catch(e) { console.error(e); }
     document.getElementById('progressFill').style.width = ((i+1)/pendingImages.length*100) + '%';
   }
