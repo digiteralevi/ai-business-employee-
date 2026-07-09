@@ -293,30 +293,18 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// ===== JSONP helper =====
-function jsonp(url) {
-  return new Promise((resolve, reject) => {
-    const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-    const script = document.createElement('script');
-    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    const timer = setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 15000);
-    const cleanup = () => { clearTimeout(timer); delete window[cb]; if (script.parentNode) script.parentNode.removeChild(script); };
-    window[cb] = (data) => { cleanup(); resolve(data); };
-    script.onerror = () => { cleanup(); reject(new Error('Failed')); };
-    document.head.appendChild(script);
-  });
-}
-
 async function loadConfig() {
   if (!SCRIPT_URL) {
     document.getElementById('loadingScreen').innerHTML = '<p style="color:#ef4444;padding:40px;text-align:center;">⚠️ Invalid token. Please reload via your secure integration link.</p>';
     return;
   }
   try {
-    const [cfgData, imgData] = await Promise.all([
-      jsonp(SCRIPT_URL + '?action=getConfig'),
-      jsonp(SCRIPT_URL + '?action=getImages')
+    const [cfgRes, imgRes] = await Promise.all([
+      fetch(SCRIPT_URL + '?action=getConfig'),
+      fetch(SCRIPT_URL + '?action=getImages')
     ]);
+    const cfgData = await cfgRes.json();
+    const imgData = await imgRes.json();
 
     siteConfig = cfgData.config || {};
     productImages = imgData.images || [];
@@ -344,7 +332,7 @@ function applyConfig(cfg) {
   document.getElementById('vipCardPrice').textContent = cfg.vipPrice || '₱997';
   document.getElementById('vipPayBtn').textContent = 'Mag-avail ng ' + (cfg.vipName || 'VIP') + ' →';
   document.getElementById('footerText').textContent = '© ' + new Date().getFullYear() + ' ' + (cfg.brandName || '') + ' — Lahat ng karapatan ay nakalaan.';
-  document.getElementById('chatBotName').textContent = (cfg.botName || cfg.brandName || 'AI') + ' Assistant';
+  document.getElementById('chatBotName').textContent = (cfg.brandName || 'ROI') + ' AI Assistant';
 }
 
 async function submitLead() {
@@ -355,7 +343,7 @@ async function submitLead() {
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Ipinapadala...';
   try {
-    await jsonp(SCRIPT_URL + '?action=saveLead&' + new URLSearchParams({name, contact, interest, type: 'lead', date: new Date().toLocaleString('en-PH')}));
+    await fetch(SCRIPT_URL + '?action=saveLead&' + new URLSearchParams({name, contact, interest, type: 'lead', date: new Date().toLocaleString('en-PH')}));
     document.getElementById('successMsg').style.display = 'block';
     btn.style.display = 'none';
     showToast('✅ Detalye matagumpay na naipadala!');
@@ -381,7 +369,7 @@ function initChat() {
   chatHistory = [
     {
       role: 'system',
-      content: `Ikaw si ${siteConfig.botName || 'Alia'}, ang friendly na AI sales assistant ng ${siteConfig.brandName || 'aming negosyo'}. Kausap mo ang isang customer — sumagot ng natural na Taglish, mainit at friendly, parang tunay na tao. Direkta lang sumagot — huwag mag-list ng rules o instructions.
+      content: `Ikaw si Alia, ang friendly na AI sales assistant ng ${siteConfig.brandName || 'aming negosyo'}. Kausap mo ang isang customer — sumagot ng natural na Taglish, mainit at friendly, parang tunay na tao. Direkta lang sumagot — huwag mag-list ng rules o instructions.
 
 ${siteConfig.botInstructions || ''}
 
@@ -441,50 +429,43 @@ async function sendMessageText(text) {
   showTyping();
 
   try {
-    // Decode API key from config (base64 encoded)
-    let apiKey = '';
-    if (siteConfig.aiApiKey) {
-      try { apiKey = atob(siteConfig.aiApiKey); } catch(e) { apiKey = siteConfig.aiApiKey; }
-    }
-    // Fallback hardcoded key
-    if (!apiKey || apiKey.length < 10) {
-      apiKey = 'AQ.Ab8RN6KKZLGteB4YRXfHUUK4Firxr1Kdu86MT57mfzOlCjDB2w';
+    const activeProvider = siteConfig.aiProvider || localStorage.getItem('aiProvider') || 'openrouter';
+    let rawKey = siteConfig.aiApiKey || localStorage.getItem('aiApiKey') || '';
+    if (rawKey && rawKey.trim() !== '') { try { rawKey = atob(rawKey.trim()); } catch(e){} }
+    // Always use working OpenRouter key
+    if (!rawKey || !rawKey.trim().startsWith('sk-or')) {
+      rawKey = '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';
     }
 
-    // Use Gemini API directly with the new AQ. key format
-    const geminiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent', {
+    let reply = '';
+    const targetModel = 'openrouter/auto';
+
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey
+        'Authorization': 'Bearer ' + rawKey.trim(),
+        'HTTP-Referer': 'https://digiteralevi.github.io',
+        'X-Title': 'AI Business Employee'
       },
-      body: JSON.stringify({
-        contents: chatHistory.filter(m => m.role !== 'system').map(m => ({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }]
-        })),
-        systemInstruction: {
-          parts: [{ text: chatHistory.find(m => m.role === 'system')?.content || '' }]
-        },
-        generationConfig: { maxOutputTokens: 800 }
-      })
+      body: JSON.stringify({ model: targetModel, max_tokens: 1000, messages: chatHistory })
     });
-
-    const geminiData = await geminiRes.json();
-    if (geminiData.error) throw new Error(geminiData.error.message);
-    const reply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'Paumanhin, may kaunting aberya. Subukan ulit!';
+    
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    reply = data.choices?.[0]?.message?.content || 'Paumanhin, hindi ko naintindihan. Subukan ulit.';
 
     chatHistory.push({ role: 'assistant', content: reply });
     removeTyping();
 
     const showImgs = reply.includes('[SHOW_IMAGES]') && productImages.length > 0;
     const cleanReply = reply.replace('[SHOW_IMAGES]', '').trim();
-    addBotMessage(cleanReply, showImgs ? productImages.slice(0, 4) : []);
 
+    addBotMessage(cleanReply, showImgs ? productImages.slice(0, 4) : []);
   } catch (err) {
     removeTyping();
-    console.error('AI Error:', err);
-    addBotMessage('May kaunting aberya sa server. Pakisubukan ulit maya-maya, o mag-click ng "📩 Ipadala ang Detalye" para makausap ang aming team! 😊');
+    addBotMessage('Paumanhin, may kaunting aberya sa server. Pakisubukan na lang ulit maya-maya.');
+    console.error(err);
   }
 
   isTyping = false;
