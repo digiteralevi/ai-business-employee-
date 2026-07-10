@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Generator — Digitera Levi</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f13; --bg2: #17171f; --card: #1e1e28; --border: #2e2e3e;
+  --purple: #8b7cf8; --purple-dark: #6c5ce7; --purple-dim: #2d2748;
+  --gold: #f5c842; --gold-dim: #3d3210;
+  --green: #4ade80; --green-dim: #14291e;
+  --red: #f87171; --red-dim: #2d1414;
+  --blue: #60a5fa; --blue-dim: #132240;
+  --text: #f0eeff; --text2: #9b96b8; --muted: #5c5878;
+  --radius: 10px; --radius-sm: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* LOCK */
+#lockScreen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 999; }
+.lock-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; width: 100%; max-width: 380px; text-align: center; }
+.lock-box h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; color: var(--purple); }
+.lock-box p { font-size: 0.82rem; color: var(--text2); margin-bottom: 24px; }
+.lock-input { width: 100%; background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text); padding: 12px 16px; font-size: 1rem; text-align: center; letter-spacing: 4px; font-family: 'JetBrains Mono', monospace; outline: none; margin-bottom: 12px; }
+.lock-input:focus { border-color: var(--purple); }
+.lock-input.shake { animation: shake 0.3s; border-color: var(--red); }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.lock-err { font-size: 0.78rem; color: var(--red); margin-bottom: 10px; display: none; }
+
+/* LAYOUT */
+#app { display: none; max-width: 980px; margin: 0 auto; padding: 24px 20px; }
+
+/* TOPBAR */
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.topbar-left h1 { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+.topbar-left p { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+.metric { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+.metric-val { font-size: 2rem; font-weight: 700; }
+.metric-label { font-size: 0.75rem; color: var(--text2); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.metric.purple .metric-val { color: var(--purple); }
+.metric.green .metric-val { color: var(--green); }
+.metric.gold .metric-val { color: var(--gold); }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; background: var(--bg2); padding: 5px; border-radius: 10px; margin-bottom: 24px; border: 1px solid var(--border); width: fit-content; }
+.tab { padding: 8px 20px; border-radius: 7px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--text2); transition: all 0.15s; }
+.tab.active { background: var(--purple-dark); color: #fff; }
+.tab:hover:not(.active) { color: var(--text); background: var(--border); }
+
+/* PANES */
+.pane { display: none; }
+.pane.active { display: block; }
+
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 18px; }
+.card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 18px; display: flex; align-items: center; gap: 6px; }
+.card-title span { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--purple); }
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+@media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 0.73rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; }
+.form-group input, .form-group select, .form-group textarea {
+  background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); padding: 10px 12px; font-size: 0.86rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.15s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--purple); }
+.form-group textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+.form-group input[readonly] { color: var(--muted); cursor: default; }
+.mono { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+.sep { border: none; border-top: 1px dashed var(--border); margin: 18px 0; }
+.input-eye { position: relative; }
+.input-eye input { padding-right: 40px; }
+.input-eye button { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 0.84rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+.btn-primary { background: var(--purple-dark); color: #fff; }
+.btn-primary:hover { background: var(--purple); }
+.btn-ghost { background: var(--bg2); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--border); color: var(--text); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid #4d1818; }
+.btn-danger:hover { background: #3d1414; }
+.btn-success { background: var(--green-dim); color: var(--green); border: 1px solid #1a4d2e; }
+.btn-sm { padding: 6px 12px; font-size: 0.76rem; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* PROGRESS & LOG */
+.progress-wrap { margin-top: 14px; display: none; }
+.progress-bar { height: 5px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--purple-dark), var(--purple)); border-radius: 4px; transition: width 0.4s; width: 0%; }
+.log { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; line-height: 2; max-height: 200px; overflow-y: auto; margin-top: 12px; display: none; }
+.log.show { display: block; }
+.log .ok { color: var(--green); }
+.log .err { color: var(--red); }
+.log .info { color: var(--blue); }
+.log .warn { color: var(--gold); }
+
+/* CLIENTS TABLE */
+.clients-list { display: flex; flex-direction: column; gap: 0; }
+.client-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.client-row:last-child { border-bottom: none; }
+.client-avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--purple-dim); color: var(--purple); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+.client-info { flex: 1; min-width: 0; }
+.client-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.client-meta { font-size: 0.75rem; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.client-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-live { background: var(--green-dim); color: var(--green); }
+.badge-pending { background: var(--gold-dim); color: var(--gold); }
+.badge-error { background: var(--red-dim); color: var(--red); }
+.empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 0.85rem; }
+
+/* LINKS PANEL */
+.link-display { background: var(--bg2); border: 1px dashed var(--purple); border-radius: var(--radius-sm); padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--purple); word-break: break-all; margin-top: 8px; }
+.link-label { font-size: 0.7rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 12px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 500px; width: 100%; }
+.modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 12px 22px; border-radius: 10px; font-size: 0.84rem; font-weight: 600; transition: transform 0.25s; z-index: 9999; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.ok { border-color: var(--green); color: var(--green); }
+.toast.err { border-color: var(--red); color: var(--red); }
+
+/* STEP GUIDE */
+.steps { display: flex; flex-direction: column; gap: 14px; }
+.step { display: flex; gap: 14px; align-items: flex-start; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--purple-dim); color: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
+.step-body .step-title { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.step-body .step-desc { font-size: 0.78rem; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+.step.done .step-num { background: var(--green-dim); color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div style="font-size:2.5rem;margin-bottom:12px;">⚙️</div>
+    <h2>Client Generator</h2>
+    <p>I-enter ang admin password para magpatuloy.</p>
+    <input type="password" class="lock-input" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLock()">
+    <div class="lock-err" id="lockErr">❌ Mali ang password. Subukan ulit.</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="checkLock()">I-unlock →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>⚙️ Client Generator</h1>
+      <p>Auto-setup ng AI bot per client — fork, deploy, track</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇️ Export CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="lockApp()">🔒 Lock</button>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric purple">
+      <div class="metric-val" id="mTotal">0</div>
+      <div class="metric-label">Total clients</div>
+    </div>
+    <div class="metric green">
+      <div class="metric-val" id="mLive">0</div>
+      <div class="metric-label">Live na bots</div>
+    </div>
+    <div class="metric gold">
+      <div class="metric-val" id="mPending">0</div>
+      <div class="metric-label">Pending</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('new',this)">➕ Bagong Client</button>
+    <button class="tab" onclick="switchTab('clients',this)">👥 All Clients</button>
+    <button class="tab" onclick="switchTab('settings',this)">⚙️ Settings</button>
+    <button class="tab" onclick="switchTab('guide',this)">📖 Guide</button>
+  </div>
+
+  <!-- NEW CLIENT TAB -->
+  <div id="pane-new" class="pane active">
+    <div class="card">
+      <div class="card-title"><span></span> Client Info</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Client name *</label>
+          <input id="cName" type="text" placeholder="e.g. Juan dela Cruz">
+        </div>
+        <div class="form-group">
+          <label>Business name *</label>
+          <input id="cBiz" type="text" placeholder="e.g. JDC Printing Shop" oninput="autoRepo()">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Email / contact</label>
+          <input id="cEmail" type="text" placeholder="juan@email.com">
+        </div>
+        <div class="form-group">
+          <label>GitHub repo name (auto)</label>
+          <input id="cRepo" type="text" placeholder="jdc-printing-bot" class="mono">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Payment received</label>
+          <input id="cPayment" type="text" placeholder="₱5,000 via GCash">
+        </div>
+        <div class="form-group">
+          <label>Package availed</label>
+          <input id="cPackage" type="text" placeholder="Basic / Pro / DFY">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span></span> Bot Config</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Bot name</label>
+          <input id="cBotName" type="text" placeholder="JDC AI Assistant">
+        </div>
+        <div class="form-group">
+          <label>Messenger / contact link</label>
+          <input id="cMessenger" type="text" placeholder="https://m.me/...">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Hero headline</label>
+          <input id="cHero" type="text" placeholder="Mag-order na ng Printing!">
+        </div>
+        <div class="form-group">
+          <label>Tagline</label>
+          <input id="cTagline" type="text" placeholder="Fast, affordable, quality prints">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Package 1 name — price</label>
+          <input id="cPkg1Name" type="text" placeholder="Basic Bundle">
+          <input id="cPkg1Price" type="text" placeholder="₱1,997" style="margin-top:6px;">
+        </div>
+        <div class="form-group">
+          <label>Package 2 name — price</label>
+          <input id="cPkg2Name" type="text" placeholder="VIP Access">
+          <input id="cPkg2Price" type="text" placeholder="₱997" style="margin-top:6px;">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Bot instructions — sales script, FAQs, services</label>
+        <textarea id="cInstructions" placeholder="Isulat ang sales script, services, mga FAQ, objection handling... (ito ang hidden na instructions ng AI bot)"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span></span> Generate</div>
+      <div class="steps" id="genSteps">
+        <div class="step" id="step1"><div class="step-num">1</div><div class="step-body"><div class="step-title">Fork template repo</div><div class="step-desc">Gagawa ng bagong GitHub repo para sa client</div></div></div>
+        <div class="step" id="step2"><div class="step-num">2</div><div class="step-body"><div class="step-title">Enable GitHub Pages</div><div class="step-desc">I-a-activate ang live website ng client</div></div></div>
+        <div class="step" id="step3"><div class="step-num">3</div><div class="step-body"><div class="step-title">Save client record</div><div class="step-desc">I-re-record sa local database</div></div></div>
+        <div class="step" id="step4"><div class="step-num">4</div><div class="step-body"><div class="step-title">Generate links</div><div class="step-desc">Admin URL + Customer URL para sa client</div></div></div>
+      </div>
+      <div class="progress-wrap" id="genProgressWrap">
+        <div class="progress-bar"><div class="progress-fill" id="genFill"></div></div>
+      </div>
+      <div class="log" id="genLog"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="genBtn" onclick="generateClient()">🚀 Generate Client Bot</button>
+        <button class="btn btn-ghost" onclick="clearNewForm()">🗑️ Clear</button>
+      </div>
+
+      <!-- RESULT LINKS -->
+      <div id="genResult" style="display:none;margin-top:20px;">
+        <div style="background:var(--green-dim);border:1px solid #1a4d2e;border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;font-size:0.84rem;color:var(--green);">
+          ✅ Setup complete! I-open ang Admin URL at i-configure ang bot settings ng client.
+        </div>
+        <div class="link-label">Admin Panel URL</div>
+        <div class="link-display" id="resultAdmin"></div>
+        <div class="link-label">Customer Page URL</div>
+        <div class="link-display" id="resultCustomer"></div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="copyBothLinks()">📋 Copy Both Links</button>
+          <button class="btn btn-success btn-sm" onclick="openAdmin()">🔗 Open Admin Panel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENTS TAB -->
+  <div id="pane-clients" class="pane">
+    <div class="card">
+      <div class="card-title"><span></span> All Clients</div>
+      <div id="clientsList"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="pane-settings" class="pane">
+    <div class="card">
+      <div class="card-title"><span></span> GitHub Settings</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>GitHub Username</label>
+          <input id="sGhUser" type="text" placeholder="digiteralevi">
+        </div>
+        <div class="form-group">
+          <label>Template Repo Name</label>
+          <input id="sTemplateRepo" type="text" placeholder="ai-business-employee-">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>GitHub Personal Access Token (classic)</label>
+        <div class="input-eye">
+          <input id="sToken" type="password" placeholder="ghp_..." class="mono">
+          <button onclick="toggleVis('sToken',this)">👁️</button>
+        </div>
+      </div>
+      <hr class="sep">
+      <div class="card-title"><span></span> Google Apps Script</div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Master Script URL</label>
+        <input id="sMasterScript" type="text" placeholder="https://script.google.com/macros/s/.../exec" class="mono">
+      </div>
+      <hr class="sep">
+      <div class="card-title"><span></span> Security</div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Admin Password (i-set o baguhin)</label>
+        <div class="input-eye">
+          <input id="sPassword" type="password" placeholder="Bagong password...">
+          <button onclick="toggleVis('sPassword',this)">👁️</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+        <button class="btn btn-ghost" onclick="testGitHub()">🔌 Test GitHub Connection</button>
+      </div>
+      <div class="log show" id="settingsLog" style="margin-top:14px;min-height:60px;"></div>
+    </div>
+  </div>
+
+  <!-- GUIDE TAB -->
+  <div id="pane-guide" class="pane">
+    <div class="card">
+      <div class="card-title"><span></span> Quick Setup Guide</div>
+      <div class="steps">
+        <div class="step done"><div class="step-num">✓</div><div class="step-body"><div class="step-title">GitHub Token — nakuha na</div><div class="step-desc">Classic token na may repo, workflow, at delete_repo permissions</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">I-configure ang Settings tab</div><div class="step-desc">GitHub username, token, template repo name, at Apps Script URL</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">I-test ang GitHub connection</div><div class="step-desc">Dapat "Connected!" ang lumabas sa log</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Bagong client — pumunta sa "Bagong Client" tab</div><div class="step-desc">Fill in ang client info at bot config, tapos i-click ang Generate</div></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">I-send ang Admin URL sa client</div><div class="step-desc">Buksan ang Admin Panel, i-configure ang bot, i-send ang Customer URL sa clients nila</div></div></div>
+      </div>
+      <hr class="sep">
+      <div class="card-title"><span></span> Apps Script URL Mo</div>
+      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:10px;">Ilagay ito sa Settings → Master Script URL:</p>
+      <div class="link-display">https://script.google.com/macros/s/AKfycby7E0zNgJeq8jHVhzrB8BlTELoZYOlSGAPsXqij9IP3dWR2QG_EU79BYnt85NAj_zc/exec</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="navigator.clipboard.writeText('https://script.google.com/macros/s/AKfycby7E0zNgJeq8jHVhzrB8BlTELoZYOlSGAPsXqij9IP3dWR2QG_EU79BYnt85NAj_zc/exec').then(()=>toast('Copied!','ok'))">📋 Copy Script URL</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <h3 id="modalTitle">Client Details</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Isara</button>
+      <button class="btn btn-primary" onclick="copyModalLinks()">📋 Copy Links</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let clients = JSON.parse(localStorage.getItem('cg_clients')||'[]');
+let cfg = JSON.parse(localStorage.getItem('cg_cfg')||'{}');
+let currentModalClient = null;
+
+// ===== LOCK =====
+function checkLock(){
+  const pass = localStorage.getItem('cg_pass')||'';
+  const input = document.getElementById('lockInput').value;
+  if(!pass || input===pass){
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    loadSettings(); updateMetrics();
+  } else {
+    const el=document.getElementById('lockInput');
+    el.classList.add('shake');
+    document.getElementById('lockErr').style.display='block';
+    setTimeout(()=>el.classList.remove('shake'),400);
+    el.value='';
+  }
+}
+function lockApp(){
+  document.getElementById('lockScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('lockInput').value='';
+  document.getElementById('lockErr').style.display='none';
+}
+document.getElementById('lockInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkLock();});
+window.onload=()=>{ const p=localStorage.getItem('cg_pass')||''; if(!p){document.getElementById('lockScreen').style.display='none';document.getElementById('app').style.display='block';loadSettings();updateMetrics();} };
+
+// ===== TABS =====
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
+  if(name==='clients') renderClients();
+}
+
+// ===== HELPERS =====
+function $(id){return document.getElementById(id);}
+function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function autoRepo(){const b=$('cBiz').value.trim();if(b)$('cRepo').value=slugify(b)+'-bot';}
+function toggleVis(id,btn){const el=$(id);el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁️':'🙈';}
+function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast show'+(type?' '+type:'');setTimeout(()=>t.classList.remove('show'),2800);}
+
+function log(id,msg,type='info'){
+  const el=$(id);el.classList.add('show');
+  const d=document.createElement('div');d.className=type;d.textContent='› '+msg;el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+function clearLog(id){const el=$(id);el.innerHTML='';el.classList.remove('show');}
+function setProgress(pct){$('genFill').style.width=pct+'%';$('genProgressWrap').style.display='block';}
+function markStep(n,done=true){const s=$('step'+n);if(s)s.className='step'+(done?' done':'');}
+
+// ===== SETTINGS =====
+function loadSettings(){
+  if(cfg.ghUser) $('sGhUser').value=cfg.ghUser;
+  if(cfg.token) $('sToken').value=cfg.token;
+  if(cfg.templateRepo) $('sTemplateRepo').value=cfg.templateRepo;
+  if(cfg.masterScript) $('sMasterScript').value=cfg.masterScript;
+}
+function saveSettings(){
+  const newPass=$('sPassword').value.trim();
+  if(newPass) localStorage.setItem('cg_pass',newPass);
+  cfg={
+    ghUser:$('sGhUser').value.trim(),
+    token:$('sToken').value.trim(),
+    templateRepo:$('sTemplateRepo').value.trim()||'ai-business-employee-',
+    masterScript:$('sMasterScript').value.trim()
+  };
+  localStorage.setItem('cg_cfg',JSON.stringify(cfg));
+  clearLog('settingsLog');
+  log('settingsLog','Settings saved!','ok');
+  if(newPass) log('settingsLog','Password updated!','ok');
+  toast('Settings saved!','ok');
+}
+async function testGitHub(){
+  clearLog('settingsLog');
+  if(!cfg.token||!cfg.ghUser){log('settingsLog','Ilagay muna ang username at token, tapos Save Settings.','err');return;}
+  log('settingsLog','Testing GitHub connection...','info');
+  try{
+    const r=await fetch(`https://api.github.com/users/${cfg.ghUser}`,{headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json'}});
+    const d=await r.json();
+    if(d.login){log('settingsLog','Connected! Hello '+d.login+' ('+d.public_repos+' public repos)','ok');}
+    else{log('settingsLog','Error: '+(d.message||'Unknown error'),'err');}
+  }catch(e){log('settingsLog','Failed: '+e.message,'err');}
+}
+
+// ===== GENERATE =====
+async function generateClient(){
+  const name=$('cName').value.trim();
+  const biz=$('cBiz').value.trim();
+  const repo=($('cRepo').value.trim()||slugify(biz)+'-bot');
+  if(!name||!biz){toast('Ilagay ang client name at business name!','err');return;}
+  if(!cfg.token||!cfg.ghUser){toast('I-configure muna ang Settings!','err');switchTab('settings',document.querySelectorAll('.tab')[2]);return;}
+
+  $('genBtn').disabled=true;
+  $('genResult').style.display='none';
+  clearLog('genLog');
+  ['step1','step2','step3','step4'].forEach(s=>$(s)&&$(s).classList.remove('done'));
+  setProgress(5);
+  log('genLog','Starting setup para kay '+name+' ('+biz+')...','info');
+
+  const user=cfg.ghUser;
+  const token=cfg.token;
+  const templateRepo=cfg.templateRepo||'ai-business-employee-';
+  let repoCreated=false;
+
+  try{
+    // Step 1: Generate from template
+    setProgress(15);
+    log('genLog','[1/4] Creating repo from template: '+templateRepo+' → '+repo,'info');
+
+    // First check if repo already exists
+    const checkRes=await fetch(`https://api.github.com/repos/${user}/${repo}`,{
+      headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
+    });
+    if(checkRes.status===200){
+      log('genLog','Repo already exists — gagamitin ang existing: '+user+'/'+repo,'warn');
+      repoCreated=true;
+      markStep(1);
+    } else {
+      // Create from template
+      const createRes=await fetch(`https://api.github.com/repos/${user}/${templateRepo}/generate`,{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+        body:JSON.stringify({owner:user,name:repo,include_all_branches:false,private:false})
+      });
+      const createData=await createRes.json();
+      if(createData.full_name){
+        log('genLog','✅ Repo created: '+createData.full_name,'ok');
+        repoCreated=true;
+        markStep(1);
+      } else if(createData.message&&createData.message.toLowerCase().includes('already')){
+        log('genLog','Repo already exists — gagamitin ang existing.','warn');
+        repoCreated=true;
+        markStep(1);
+      } else {
+        log('genLog','❌ Create error: '+(createData.message||JSON.stringify(createData)),'err');
+        log('genLog','→ Tip: I-check kung naka-enable ang "Template repository" sa Settings ng '+templateRepo,'warn');
+        log('genLog','→ Pumunta sa: github.com/'+user+'/'+templateRepo+'/settings','warn');
+      }
+    }
+
+    // Step 2: Wait + Enable Pages
+    setProgress(40);
+    log('genLog','[2/4] Waiting for repo to initialize (6s)...','info');
+    await new Promise(r=>setTimeout(r,6000));
+    log('genLog','Enabling GitHub Pages...','info');
+    try{
+      // First try to enable Pages
+      const pagesRes=await fetch(`https://api.github.com/repos/${user}/${repo}/pages`,{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+        body:JSON.stringify({source:{branch:'main',path:'/'}})
+      });
+      if(pagesRes.status===201) log('genLog','GitHub Pages enabled!','ok');
+      else if(pagesRes.status===409){
+        log('genLog','GitHub Pages already active.','ok');
+      } else {
+        // Try PUT to update pages if POST fails
+        const pagesPut=await fetch(`https://api.github.com/repos/${user}/${repo}/pages`,{
+          method:'PUT',
+          headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+          body:JSON.stringify({source:{branch:'main',path:'/'}})
+        });
+        if(pagesPut.status===204||pagesPut.status===200) log('genLog','GitHub Pages activated!','ok');
+        else log('genLog','Pages note: I-enable manually sa repo Settings → Pages → main branch','warn');
+      }
+    }catch(e){log('genLog','Pages warning: '+e.message,'warn');}
+    markStep(2);
+
+    // Step 3: Save record
+    setProgress(70);
+    log('genLog','[3/4] Saving client record...','info');
+    const baseUrl=`https://${user}.github.io/${repo}`;
+    const adminUrl=`${baseUrl}/ai-admin-final.html`;
+    const customerUrl=`${baseUrl}/ai-customer-final.html`;
+    const client={
+      id:Date.now(),
+      name,biz,email:$('cEmail').value.trim(),
+      repo,payment:$('cPayment').value.trim(),
+      package:$('cPackage').value.trim(),
+      botName:$('cBotName').value.trim()||biz+' AI Assistant',
+      messenger:$('cMessenger').value.trim(),
+      hero:$('cHero').value.trim(),
+      tagline:$('cTagline').value.trim(),
+      pkg1Name:$('cPkg1Name').value.trim(),pkg1Price:$('cPkg1Price').value.trim(),
+      pkg2Name:$('cPkg2Name').value.trim(),pkg2Price:$('cPkg2Price').value.trim(),
+      instructions:$('cInstructions').value.trim(),
+      adminUrl,customerUrl,
+      status:'active',
+      createdAt:new Date().toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'})
+    };
+    clients.unshift(client);
+    localStorage.setItem('cg_clients',JSON.stringify(clients));
+    markStep(3);
+    log('genLog','Client record saved!','ok');
+
+    // Step 4: Done
+    setProgress(100);
+    log('genLog','[4/4] Links generated!','ok');
+    log('genLog','Admin: '+adminUrl,'ok');
+    log('genLog','Customer: '+customerUrl,'ok');
+    markStep(4);
+
+    $('resultAdmin').textContent=adminUrl;
+    $('resultCustomer').textContent=customerUrl;
+    $('genResult').style.display='block';
+    $('genResult').dataset.adminUrl=adminUrl;
+    $('genResult').dataset.customerUrl=customerUrl;
+
+    updateMetrics();
+    toast('Client bot generated!','ok');
+
+  }catch(e){
+    log('genLog','Error: '+e.message,'err');
+    setProgress(0);
+  }
+  $('genBtn').disabled=false;
+}
+
+function copyBothLinks(){
+  const a=$('resultAdmin').textContent;
+  const c=$('resultCustomer').textContent;
+  navigator.clipboard.writeText('ADMIN PANEL:\n'+a+'\n\nCUSTOMER PAGE:\n'+c).then(()=>toast('Links copied!','ok'));
+}
+function openAdmin(){window.open($('resultAdmin').textContent,'_blank');}
+
+function clearNewForm(){
+  ['cName','cBiz','cEmail','cRepo','cPayment','cPackage','cBotName','cMessenger','cHero','cTagline','cPkg1Name','cPkg1Price','cPkg2Name','cPkg2Price','cInstructions'].forEach(id=>{$(id).value='';});
+  clearLog('genLog');
+  $('genProgressWrap').style.display='none';
+  $('genFill').style.width='0%';
+  $('genResult').style.display='none';
+  $('genBtn').disabled=false;
+  ['step1','step2','step3','step4'].forEach(s=>$(s)&&$(s).classList.remove('done'));
+}
+
+// ===== CLIENTS LIST =====
+function renderClients(){
+  const c=$('clientsList');
+  if(!clients.length){c.innerHTML='<div class="empty-state">Wala pang clients. Pumunta sa "Bagong Client" tab.</div>';return;}
+  c.innerHTML=clients.map(cl=>`
+    <div class="client-row">
+      <div class="client-avatar">${cl.biz.slice(0,2).toUpperCase()}</div>
+      <div class="client-info">
+        <div class="client-name">${cl.biz} <span class="badge badge-${cl.status==='active'?'live':'pending'}">${cl.status==='active'?'Live':'Pending'}</span></div>
+        <div class="client-meta">${cl.name} · ${cl.package||'—'} · ${cl.createdAt}</div>
+      </div>
+      <div class="client-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showClientDetail(${cl.id})">🔍 View</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyClientLinks(${cl.id})">📋 Links</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteClient(${cl.id})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function showClientDetail(id){
+  const cl=clients.find(c=>c.id===id);
+  if(!cl)return;
+  currentModalClient=cl;
+  $('modalTitle').textContent=cl.biz+' — '+cl.name;
+  $('modalBody').innerHTML=`
+    <div class="link-label">Admin Panel</div><div class="link-display">${cl.adminUrl}</div>
+    <div class="link-label">Customer Page</div><div class="link-display">${cl.customerUrl}</div>
+    <div class="link-label">Package / Payment</div>
+    <div style="font-size:0.82rem;color:var(--text2);margin-top:4px;">${cl.package||'—'} · ${cl.payment||'—'}</div>
+    <div class="link-label" style="margin-top:10px;">GitHub Repo</div>
+    <div style="font-size:0.82rem;color:var(--text2);margin-top:4px;">digiteralevi/${cl.repo}</div>
+  `;
+  $('detailModal').classList.add('show');
+}
+function closeModal(){$('detailModal').classList.remove('show');}
+function copyModalLinks(){
+  if(!currentModalClient)return;
+  navigator.clipboard.writeText('ADMIN:\n'+currentModalClient.adminUrl+'\n\nCUSTOMER:\n'+currentModalClient.customerUrl).then(()=>toast('Copied!','ok'));
+}
+function copyClientLinks(id){
+  const cl=clients.find(c=>c.id===id);
+  if(!cl)return;
+  navigator.clipboard.writeText('ADMIN:\n'+cl.adminUrl+'\n\nCUSTOMER:\n'+cl.customerUrl).then(()=>toast('Links copied!','ok'));
+}
+function deleteClient(id){
+  if(!confirm('I-delete ang client na ito?'))return;
+  clients=clients.filter(c=>c.id!==id);
+  localStorage.setItem('cg_clients',JSON.stringify(clients));
+  updateMetrics();
+  renderClients();
+  toast('Client deleted.','err');
+}
+
+// ===== METRICS =====
+function updateMetrics(){
+  $('mTotal').textContent=clients.length;
+  $('mLive').textContent=clients.filter(c=>c.status==='active').length;
+  $('mPending').textContent=clients.filter(c=>c.status!=='active').length;
+}
+
+// ===== EXPORT =====
+function exportCSV(){
+  if(!clients.length){toast('Wala pang clients!','err');return;}
+  const header='Name,Business,Email,Package,Payment,Admin URL,Customer URL,Date\n';
+  const rows=clients.map(c=>`"${c.name}","${c.biz}","${c.email||''}","${c.package||''}","${c.payment||''}","${c.adminUrl}","${c.customerUrl}","${c.createdAt}"`).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([header+rows],{type:'text/csv'}));
+  a.download='clients-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  toast('CSV exported!','ok');
+}
+
+$('detailModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>
